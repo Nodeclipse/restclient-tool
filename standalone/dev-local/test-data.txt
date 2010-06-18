@@ -1,0 +1,21 @@
+1.
+GET Text:
+http://ajax.googleapis.com/ajax/services/search/web?v=3.0&q=Paris Hilton
+
+2.
+GET Image:
+http://maps.google.com/maps/api/staticmap
+center=Brooklyn Bridge,New+York,NY
+zoom=14
+size=512x512
+maptype=roadmap
+markers=color:blue|label:S|40.702147,-74.015794
+markers=color:green|label:G|40.711614,-74.012318
+markers=color:red|color:red|label:C|40.718217,-73.998284&sensor=false
+
+3.
+Books Feeds:
+http://books.google.com/books/feeds/volumes
+q=football+-soccer
+start-index=1
+max-results=10

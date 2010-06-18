@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<project name="RestClient-SA (fat jar)" default="build-clean-fat-jar" basedir=".">
+	<!-- Fat jar eclipse plugin must be installed to run this build xml -->	
+    <!-- uncomment the following lines if using ANT outside Eclipse. Replace <fat jar dir> by path to fat jar plugin jar -->
+	<!-- fat jar plugin jar location example /C:/tools/eclipse/Common/plugins/net.sf.fjep.fatjar_0.0.31 -->
+    <!--
+        <property name="fjepPath" value="reference:file:<fat jar dir>/fatjar.jar"/>
+        <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}"/>
+        <typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}"/>
+    -->
+    <!-- uncomment the above lines to use ANT outside of Eclipse -->	
+	
+	<property file="build.properties"/>
+	<property name="build.type" value="SA"/> <!-- SA for standalone -->
+	<property name="compile.dir" value="${build.dir}/classes"/>
+	<property name="build.resource.dir" value="${build.dir}/resources"/>
+
+	<path id="classpath">
+		<fileset dir="${lib.dir}" id="libjars">
+			<include name="httpclient-4.1-alpha1.jar"/>
+			<include name="httpcore-4.1-alpha1.jar"/>
+			<include name="httpcore-nio-4.1-alpha1.jar"/>
+			<include name="httpmime-4.1-alpha1.jar"/>
+			<include name="apache-mime4j-0.6.jar"/>
+			<include name="swt-3.5.2-win32x86.jar"/>
+			<include name="log4j-1.2.16.jar"/>
+			<include name="mime-util-2.1.3.jar"/>
+		</fileset>
+	</path>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: osCheck                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="osCheck">
+		<input
+		    message="Please choose build target platform"
+		    validargs="windows,mac"
+		    addproperty="platform"
+		 />
+		<condition property="isWindows">
+			<equals arg1="windows" arg2="${platform}"/>
+		</condition>
+		<condition property="isMac">
+	    	<equals arg1="mac" arg2="${platform}"/>
+	    </condition>
+    </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: windows-props
+         - - - - - - - - - - - - - - - - - -->
+    <target name="windows-props" depends="osCheck" if="${isWindows}">
+    	<property name="os.jar.name" value="${swt.win.jar}"/>
+    	<property name="os.family.name" value="${os.win.name}"/>
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: mac-props
+         - - - - - - - - - - - - - - - - - -->
+    <target name="mac-props" depends="osCheck" if="${isMac}">
+    	<property name="os.jar.name" value="${swt.mac.jar}"/>
+    	<property name="os.family.name" value="${os.mac.name}"/>
+    </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+	          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init" depends="windows-props, mac-props">
+    	<mkdir dir="${compile.dir}"/>
+    	<mkdir dir="${build.resource.dir}"/>
+    </target>
+
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+    <target name="compile" depends="init" description="java files compilation">
+    	<javac srcdir="${src.dir}" destdir="${compile.dir}" debug="on">
+    		<classpath refid="classpath"/>
+    		<exclude name="code/google/restclient/parse/**"/>
+    		<exclude name="code/google/restclient/test/**"/>
+    	</javac>
+    </target>
+	
+	<!-- ================================= 
+          target: build              
+         ================================= -->
+    <target name="build" depends="compile" description="builds whole app in deployable structure"> 	
+    	<copy todir="${build.resource.dir}">
+    	    <fileset dir="${conf.dir}">
+    	    	<exclude name="**/log4j.properties"/>
+    	    	<!--
+    	    	<exclude name="**/win.properties"/>
+    	    	<exclude name="**/mac.properties"/>
+    	    	-->
+			</fileset>
+    	</copy>
+    	
+    	<copy todir="${build.resource.dir}"> <!-- flatten="true" -->
+    		<fileset dir="${resource.dir}"/>
+    	</copy>
+    </target>
+	
+	<!-- ================================= 
+          target: build-core-jar              
+         ================================= -->
+    <target name="build-core-jar" depends="build" description="builds jar for plugin and sets no system check">
+    	<delete dir="${build.dir}/core"/>
+    	<mkdir dir="${build.dir}/core"/>
+    	<copy todir="${build.dir}/core">
+    		<fileset dir="${compile.dir}"/>
+    		<fileset dir="${build.resource.dir}"/>
+    	</copy>
+    	<propertyfile file="${build.dir}/core/rest-client.properties" comment="Some properties added by build">
+        	<entry key="system.check" value="false"/>
+        </propertyfile>
+    	<jar destfile="${dist.dir}/${app.name}-core-${app.version}.jar">
+			<fileset dir="${build.dir}/core">
+				<include name="**/*"/>
+				<include name="**/*"/>
+			</fileset>
+		</jar>
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: add-rest-client-props                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="add-rest-client-props" depends="build">
+        <propertyfile file="${build.resource.dir}/rest-client.properties" comment="Some properties added by build">
+        	<entry key="app.name" value="${app.name}"/>
+        	<entry key="app.version" value="${app.version}"/>
+        	<entry key="java.version" value="${java.version}"/>
+        	<entry key="os.name" value="${os.family.name}"/>
+        </propertyfile>
+    </target>
+	
+	<!-- ================================= 
+          target: build-fat-jar              
+         ================================= -->
+	<target name="build-fat-jar" depends="build,add-rest-client-props" description="create distributable fat jar">
+        <fatjar.build output="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar">
+        	<fatjar.manifest mainclass="code.google.restclient.init.Launcher"/> <!-- mergemanifests="false"  -->
+            <fatjar.filesource path="${compile.dir}" relpath=""/>
+        	<fatjar.filesource path="${build.resource.dir}" relpath=""/>
+        	        	
+            <fatjar.jarsource file="${lib.dir}/httpclient-4.1-alpha1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpcore-4.1-alpha1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpcore-nio-4.1-alpha1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpmime-4.1-alpha1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/apache-mime4j-0.6.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/swt-3.5.2-${os.jar.name}.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/log4j-1.2.16.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/commons-logging-1.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/mime-util-2.1.3.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/slf4j-api-1.6.0.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/slf4j-log4j12-1.6.0.jar" relpath=""/>
+        	<!--
+            <fatjar.jarsource file="${lib.dir}/jettison-1.2.jar" relpath=""/>
+        	-->
+        </fatjar.build>
+    </target>
+	
+	<!-- ================================= 
+          target: build-clean-fat-jar              
+         ================================= -->
+	<target name="build-clean-fat-jar" depends="build-fat-jar" description="creates fat jar after deleting info files of depenedency jars">
+		<unjar src="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar" dest="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}"/>
+
+		<fileset dir="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}" id="infoFiles">
+		    <include name="**/README.txt"/>
+			<include name="**/README"/>
+			<include name="**/NOTICE.txt"/>
+			<include name="**/NOTICE"/>
+			<include name="**/DEPENDENCIES"/>
+			<include name="**/VERSION.txt"/>
+			<include name="**/version.txt"/>
+			<!--
+		    <include name="**/LICENSE.txt"/>
+			<include name="**/LICENSE"/>
+			-->
+		</fileset>
+		<delete>
+		    <fileset refid="infoFiles"/>
+			<fileset dir="${dist.dir}" includes="${app.name}-${build.type}_${os.jar.name}-${app.version}.jar"/>
+		</delete>
+		
+		<jar destfile="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar" manifest="${conf.dir}/META-INF/MANIFEST.MF">
+			<fileset dir="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}">
+				<include name="**/*"/>
+			</fileset>
+		</jar>		
+		<delete dir="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}"/>
+        <echo message="fat jar created @ ${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar"/>
+	</target>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+    <target name="clean" description="delete build and dist dirs">
+        <delete dir="${build.dir}"/>
+    	<delete dir="${dist.dir}"/>
+    </target>
+	
+</project>

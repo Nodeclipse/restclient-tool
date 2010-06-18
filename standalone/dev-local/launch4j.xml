@@ -1,0 +1,22 @@
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\E\Projects_Other\eclipse-apps\RestClient-Tool\standalone\dist\rc-tool-SA_win32x86-1.0.0.jar</jar>
+  <outfile>C:\E\Projects_Other\eclipse-apps\RestClient-Tool\standalone\dist\rc-tool.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>true</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon>C:\E\Projects_Other\eclipse-apps\RestClient-Tool\standalone\resource\icons\logo.ico</icon>
+  <jre>
+    <path></path>
+    <minVersion>1.6.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+  </jre>
+</launch4jConfig>
