@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="RestClient Tool update site" url="http://code.google.com/a/eclipselabs.org/p/restclient-tool/source/browse/#svn/trunk/eclipse/update">
-      RestClient Tool update site
+   <description name="RestClient Tool update site" url="http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/">
+      RestClient Tool update site. Latest features available at this location.
    </description>
    <feature url="features/code.google.restclient.tool.feature_1.0.0.jar" id="code.google.restclient.tool.feature" version="1.0.0">
-      <category name="restclient.basic"/>
+      <category name="main"/>
    </feature>
-   <category-def name="restclient.basic" label="Basic">
+   <category-def name="main" label="Main">
       <description>
          All essential functionalities
       </description>
