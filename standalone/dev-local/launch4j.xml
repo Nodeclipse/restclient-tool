@@ -2,7 +2,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>C:\E\Projects_Other\eclipse-apps\restclient-tool\trunk\standalone\dist\rc-tool-SA_win32x86-1.0.0.jar</jar>
-  <outfile>C:\E\Projects_Other\eclipse-apps\restclient-tool\trunk\standalone\dist\rc-tool.exe</outfile>
+  <outfile>C:\E\Projects_Other\eclipse-apps\restclient-tool\trunk\standalone\dist\rc-tool_1.0.0.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
