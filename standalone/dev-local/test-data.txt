@@ -16,6 +16,6 @@ markers=color:red|color:red|label:C|40.718217,-73.998284&sensor=false
 3.
 Books Feeds:
 http://books.google.com/books/feeds/volumes
-q=football+-soccer
+q=football -soccer
 start-index=1
 max-results=10

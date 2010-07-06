@@ -1,12 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2010 Yadu.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Yadu - initial API and implementation
+ * Copyright (c) 2010 Yadu. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public
+ * License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: Yadu - initial API
+ * and implementation
  ******************************************************************************/
 
 package code.google.restclient.ui;
@@ -49,7 +44,7 @@ import code.google.restclient.client.ViewRequest;
 import code.google.restclient.client.ViewResponse;
 import code.google.restclient.common.RCConstants;
 import code.google.restclient.common.RCUtil;
-
+import code.google.restclient.parse.Formatter;
 
 /**
  * @author Yaduvendra.Singh
@@ -531,14 +526,16 @@ public class MainWindow {
         if ( headerPart == null ) headerPart = "";
         if ( bodyPart == null ) bodyPart = "";
 
-        StyleRange reqPanStyle = null;
         if ( !RCUtil.isEmpty(headerPart) ) {
-            reqPanText.setText(headerPart + "\n\n" + bodyPart);
             if ( !RCUtil.isEmpty(bodyPart) ) {
-                reqPanStyle = DecorHelper.getStyle(headerPart.length(), bodyPart.length() + 2, -1, SWT.COLOR_BLUE);
-            }
+                String prettyBodyTxt = getPrettyTxt(bodyPart);
+                if ( !RCUtil.isEmpty(prettyBodyTxt) ) bodyPart = prettyBodyTxt;
+                StyleRange reqPanStyle = DecorHelper.getStyle(headerPart.length(), bodyPart.length() + 2, -1, SWT.COLOR_BLUE);
+                reqPanText.setText(headerPart + "\n\n" + bodyPart);
+                reqPanText.setStyleRange(reqPanStyle);
+            } else reqPanText.setText(headerPart);
         }
-        reqPanText.setStyleRange(reqPanStyle);
+
     }
 
     private void populateRespPan(StyledText respPanText) {
@@ -547,14 +544,24 @@ public class MainWindow {
         if ( headerPart == null ) headerPart = "";
         if ( bodyPart == null ) bodyPart = "";
 
-        StyleRange respPanStyle = null;
         if ( !RCUtil.isEmpty(headerPart) ) {
-            respPanText.setText(headerPart + "\n\n" + bodyPart);
             if ( !RCUtil.isEmpty(bodyPart) ) {
-                respPanStyle = DecorHelper.getStyle(headerPart.length(), bodyPart.length() + 2, -1, SWT.COLOR_BLUE);
-            }
+                String prettyBodyTxt = getPrettyTxt(bodyPart);
+                if ( !RCUtil.isEmpty(prettyBodyTxt) ) bodyPart = prettyBodyTxt;
+                StyleRange respPanStyle = DecorHelper.getStyle(headerPart.length(), bodyPart.length() + 2, -1, SWT.COLOR_BLUE);
+                respPanText.setText(headerPart + "\n\n" + bodyPart);
+                respPanText.setStyleRange(respPanStyle);
+            } else respPanText.setText(headerPart);
         }
-        respPanText.setStyleRange(respPanStyle);
+
+    }
+
+    private String getPrettyTxt(String text) {
+        // Pretty XML
+        if ( text.trim().startsWith("<") ) return Formatter.getIndentedXml(text, 2);
+        // Pretty Json
+        if ( text.trim().startsWith("{") ) return Formatter.getIndentedJson(text, 2);
+        return "";
     }
 
     private void populateBrowser(Browser browser, String bodyPart, String filePath, String hostUrl) {
@@ -613,11 +620,9 @@ public class MainWindow {
             bodyTextCheck.setSelection(false); // Disable body check box
         }
     }
-
     /*
-    public static void main(String[] args) {
-        new MainWindow().open();
-    }
+        public static void main(String[] args) {
+            new MainWindow().open();
+        }
     */
-
 }

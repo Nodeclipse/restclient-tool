@@ -1,12 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2010 Yadu.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Yadu - initial API and implementation
+ * Copyright (c) 2010 Yadu. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public
+ * License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: Yadu - initial API
+ * and implementation
  ******************************************************************************/
 
 package code.google.restclient.client;
@@ -43,7 +38,6 @@ import code.google.restclient.core.HttpHandler;
 import code.google.restclient.exception.RCException;
 import code.google.restclient.init.Configurator;
 import code.google.restclient.mime.MimeTypeUtil;
-
 
 /**
  * @author Yaduvendra.Singh
@@ -290,10 +284,11 @@ public class HitterClient {
      */
     private boolean isTextOrXmlResponse(HttpHandler handler) {
         String contentType = handler.getResponseContentType();
-        if ( contentType != null ) { // check for extra text content types specified in config file
+        if ( contentType != null ) {
             if ( contentType.indexOf(";") > 0 ) {
                 contentType = contentType.substring(0, contentType.indexOf(";")).trim();
             }
+            // check for extra text content types specified in config file
             String[] extraTextContTypes = RCConstants.EXTRA_TEXT_CONTENT_TYPES.split(",");
             for ( String extraContType : extraTextContTypes ) {
                 if ( extraContType.equalsIgnoreCase(contentType) ) return true;

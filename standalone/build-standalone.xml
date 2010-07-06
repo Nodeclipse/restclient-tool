@@ -28,6 +28,7 @@
 			<include name="swt-3.5.2-win32x86.jar"/>
 			<include name="log4j-1.2.16.jar"/>
 			<include name="mime-util-2.1.3.jar"/>
+			<include name="jettison-1.2.jar"/>
 		</fileset>
 	</path>
 	
@@ -78,7 +79,7 @@
     <target name="compile" depends="init" description="java files compilation">
     	<javac srcdir="${src.dir}" destdir="${compile.dir}" debug="on">
     		<classpath refid="classpath"/>
-    		<exclude name="code/google/restclient/parse/**"/>
+    		<!-- <exclude name="code/google/restclient/parse/**"/> -->
     		<exclude name="code/google/restclient/test/**"/>
     	</javac>
     </target>
@@ -153,6 +154,7 @@
         	<fatjar.jarsource file="${lib.dir}/log4j-1.2.16.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/commons-logging-1.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/mime-util-2.1.3.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib.dir}/jettison-1.2.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/slf4j-api-1.6.0.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/slf4j-log4j12-1.6.0.jar" relpath=""/>
         	<!--
