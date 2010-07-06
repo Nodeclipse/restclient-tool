@@ -68,7 +68,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
 	          target: init                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="init" depends="windows-props, mac-props">
+    <target name="init" depends="windows-props, mac-props, clean">
     	<mkdir dir="${compile.dir}"/>
     	<mkdir dir="${build.resource.dir}"/>
     </target>
@@ -91,10 +91,6 @@
     	<copy todir="${build.resource.dir}">
     	    <fileset dir="${conf.dir}">
     	    	<exclude name="**/log4j.properties"/>
-    	    	<!--
-    	    	<exclude name="**/win.properties"/>
-    	    	<exclude name="**/mac.properties"/>
-    	    	-->
 			</fileset>
     	</copy>
     	
@@ -201,7 +197,7 @@
          ================================= -->
     <target name="clean" description="delete build and dist dirs">
         <delete dir="${build.dir}"/>
-    	<delete dir="${dist.dir}"/>
+    	<!-- <delete dir="${dist.dir}"/> -->
     </target>
 	
 </project>
