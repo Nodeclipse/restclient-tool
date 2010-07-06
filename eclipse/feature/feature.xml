@@ -2,7 +2,7 @@
 <feature
       id="code.google.restclient.tool.feature"
       label="RestClient Tool"
-      version="1.0.0"
+      version="1.0.1"
       provider-name="Yadu">
 
    <description url="http://code.google.com/a/eclipselabs.org/p/restclient-tool/">
@@ -134,11 +134,15 @@
   This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
    </license>
 
+   <url>
+      <update label="http://code.google.com/a/eclipselabs.org/p/restclient-tool/" url="http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/"/>
+   </url>
+
    <plugin
          id="code.google.restclient.tool"
          download-size="0"
          install-size="0"
-         version="1.0.0"
+         version="1.0.1"
          unpack="false"/>
 
 </feature>
