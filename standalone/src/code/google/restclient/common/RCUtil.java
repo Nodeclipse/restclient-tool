@@ -39,10 +39,10 @@ public class RCUtil {
         else return true;
     }
 
-    public static Map<String, String> populateMapFromStr(String str) {
+    public static Map<String, String> getMapFromStr(String str) {
         Map<String, String> map = new LinkedHashMap<String, String>();
         if ( str != null ) {
-            String[] linesArr = str.split("\n");
+            String[] linesArr = str.replaceAll("\r", "").split("\n");
             if ( linesArr != null && linesArr.length > 0 ) {
                 String[] keyValueArr = null;
                 for ( String line : linesArr ) {
@@ -69,10 +69,11 @@ public class RCUtil {
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         String line = null;
         while ( (line = reader.readLine()) != null ) {
+            sb.append("\n");
             if ( encode ) sb.append(RCUtil.encode(line));
             else sb.append(line);
         }
-        return sb.toString();
+        return sb.toString().replaceFirst("\n", "");
     }
 
     /**
@@ -94,9 +95,9 @@ public class RCUtil {
                 String[] tuple = pair.split("=");
                 if ( tuple.length > 1 ) {
                     // encode name part
-                    sb.append("&" + RCUtil.encode(tuple[0]) + "=");
+                    sb.append("&" + encode(tuple[0]) + "=");
                     // encode value part
-                    sb.append(RCUtil.encode(RCUtil.decode(tuple[1])));
+                    sb.append(encode(decode(tuple[1])));
                 }
             }
             queryStr = sb.toString().replaceFirst("&", "");

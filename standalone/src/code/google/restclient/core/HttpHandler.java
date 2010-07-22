@@ -27,8 +27,10 @@ import code.google.restclient.common.RCConstants;
 import code.google.restclient.common.RCUtil;
 import code.google.restclient.exception.RCException;
 
-
 /**
+ * Purpose of this bean is to keep information of actual request and response with its members HttpUriRequest, HttpResponse, request entity
+ * (HttpEntity), response entity (HttpEntity) where reqBodyEntity is set by HitterClient before invoking Hitter.hit()
+ * 
  * @author Yaduvendra.Singh
  */
 public class HttpHandler {
@@ -36,7 +38,7 @@ public class HttpHandler {
     private HttpUriRequest request;
     private HttpResponse response;
     private HttpEntity respEntity;
-    private HttpEntity postEntity;
+    private HttpEntity reqBodyEntity;
 
     public HttpUriRequest getRequest() {
         return request;
@@ -55,12 +57,12 @@ public class HttpHandler {
         if ( response != null ) respEntity = response.getEntity();
     }
 
-    public HttpEntity getPostEntity() {
-        return postEntity;
+    public HttpEntity getReqBodyEntity() {
+        return reqBodyEntity;
     }
 
-    public void setPostEntity(HttpEntity postEntity) {
-        this.postEntity = postEntity;
+    public void setReqBodyEntity(HttpEntity reqBodyEntity) {
+        this.reqBodyEntity = reqBodyEntity;
     }
 
     /* *********** Request Elements ************ */
@@ -80,9 +82,9 @@ public class HttpHandler {
             }
         }
         // Include headers which are added by http components by default. Additional headers to display in req pane
-        if ( postEntity != null ) {
-            reqHeaders.put("Content-Length", "" + postEntity.getContentLength());
-            reqHeaders.put("Content-Type", postEntity.getContentType().getValue());
+        if ( reqBodyEntity != null ) {
+            reqHeaders.put("Content-Length", "" + reqBodyEntity.getContentLength());
+            reqHeaders.put("Content-Type", reqBodyEntity.getContentType().getValue());
         }
         String host = getUri().getHost();
         String port = getUri().getPort() == -1 ? "" : ":" + getUri().getPort();
@@ -124,6 +126,7 @@ public class HttpHandler {
     }
 
     /* *********** Response Elements ************ */
+
     public String getStatusLine() {
         if ( response != null && response.getStatusLine() != null ) return response.getStatusLine().toString();
         return null;

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: RestClient Tool
 Bundle-SymbolicName: code.google.restclient.tool;singleton:=true
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-ClassPath: .,
  icons/,
  lib/apache-mime4j-0.6.jar,
@@ -14,7 +14,7 @@ Bundle-ClassPath: .,
  lib/jettison-1.2.jar,
  lib/log4j-1.2.16.jar,
  lib/mime-util-2.1.3.jar,
- lib/rc-tool-core-1.0.1.jar,
+ lib/rc-tool-core-1.0.2.jar,
  lib/slf4j-api-1.6.0.jar,
  lib/slf4j-log4j12-1.6.0.jar
 Bundle-Activator: code.google.restclient.eclipse.plugin.Activator

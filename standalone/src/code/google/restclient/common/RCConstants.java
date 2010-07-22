@@ -28,12 +28,15 @@ public class RCConstants {
     public static final String SYS_PROXY_DISABLED = "SYS_PROXY_DISABLED";
     public static final int PLAIN_SOCKET_PORT = 80;
     public static final int SSL_SOCKET_PORT = 443;
+    public static final boolean DISABLE_HOST_NAME_VERIFIER = new Boolean(PropUtil.getProperty("disable.host.name.verifier"));
     public static final String GET = "GET";
     public static final String POST = "POST";
     public static final String HEAD = "HEAD";
     public static final String DELETE = "DELETE";
     public static final String PUT = "PUT";
     public static final String DEFAULT_CHARSET = "UTF-8";
+    public static final String OCTET_MIME_TYPE = "application/octet-stream";
+    public static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
 
     // Intro texts
     public static final String HEADER_TEXT = "Headers on separate lines";

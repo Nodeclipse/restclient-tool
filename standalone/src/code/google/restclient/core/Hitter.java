@@ -11,13 +11,9 @@
 
 package code.google.restclient.core;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -25,8 +21,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.conn.ClientConnectionManager;
@@ -34,10 +32,8 @@ import org.apache.http.conn.params.ConnRouteParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
@@ -60,12 +56,10 @@ public class Hitter {
     private String proxyHost = RCConstants.SYS_PROXY_ENABLED;
     private int proxyPort = -1;
     private Map<String, String> headers;
-    HttpHandler handler;
 
     public Hitter() {
         configureSysProxy();
         headers = new LinkedHashMap<String, String>();
-        handler = new HttpHandler();
     }
 
     public Hitter(Map<String, String> headers) {
@@ -148,7 +142,14 @@ public class Hitter {
         // a separate Scheme for each weird port
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), RCConstants.PLAIN_SOCKET_PORT));
-        registry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), RCConstants.SSL_SOCKET_PORT));
+        SSLSocketFactory sslFactory = SSLSocketFactory.getSocketFactory();
+        if ( RCConstants.DISABLE_HOST_NAME_VERIFIER ) {
+            // TODO AllowAllHostnameVerifier doesn't verify host names contained in ssl certificate. It should not be set
+            // in production environment. It may allow man in middle attack. Other host name verifiers for specific needs
+            // are StrictHostnameVerifier and X509HostnameVerifier.
+            sslFactory.setHostnameVerifier(new AllowAllHostnameVerifier());
+        }
+        registry.register(new Scheme("https", sslFactory, RCConstants.SSL_SOCKET_PORT));
 
         if ( conman == null ) conman = new ThreadSafeClientConnManager(registry);
 
@@ -167,103 +168,47 @@ public class Hitter {
     }
 
     /**
-     * Common method to make GET or POST request
+     * Method to make POST or PUT request by sending http entity (as body)
      */
-    public HttpHandler hit(String url, String methodName, String body, Map<String, String> requestHeaders) throws Exception {
+    public void hit(String url, String methodName, HttpHandler handler, Map<String, String> requestHeaders) throws Exception {
+
+        if ( DEBUG_ENABLED ) LOG.debug("hit() - method => " + methodName + ", url => " + url);
 
         if ( HttpGet.METHOD_NAME.equals(methodName) ) {
-            if ( DEBUG_ENABLED ) LOG.debug("===> GET " + url);
-            return hit(url, new HttpGet(url), requestHeaders);
-
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> GET " + url);
+            hit(url, new HttpGet(url), handler, requestHeaders);
         } else if ( HttpHead.METHOD_NAME.equals(methodName) ) {
-            if ( DEBUG_ENABLED ) LOG.debug("===> HEAD " + url);
-            return hit(url, new HttpHead(url), requestHeaders);
-
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> HEAD " + url);
+            hit(url, new HttpHead(url), handler, requestHeaders);
         } else if ( HttpDelete.METHOD_NAME.equals(methodName) ) {
-            if ( DEBUG_ENABLED ) LOG.debug("===> DELETE " + url);
-            return hit(url, new HttpDelete(url), requestHeaders);
-
-        } else if ( isEntityEnclosingMethod(methodName) ) {
-            if ( body == null ) body = "";
-            HttpEntity entity = null;
-            if ( body.startsWith("@") ) {
-                String path = Pattern.compile("^@").matcher(body).replaceAll("");
-                entity = new FileEntity(new File(path), ""); // second argument is contentType e.g.
-                // "text/plain; charset=\"UTF-8\"");
-            } else {
-                entity = new StringEntity(body, RCConstants.DEFAULT_CHARSET);
-            }
-
-            if ( DEBUG_ENABLED ) {
-                String dump = body;
-                if ( Pattern.compile("pass", Pattern.CASE_INSENSITIVE).matcher(dump).matches() ) dump = "*PASSWORD*SCRUBBED*";
-                if ( DEBUG_ENABLED ) LOG.debug("===> " + methodName.toUpperCase() + " " + url + " <=== " + dump);
-            }
-
-            return hit(url, methodName, entity, requestHeaders);
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> DELETE " + url);
+            hit(url, new HttpDelete(url), handler, requestHeaders);
+        } else if ( HttpOptions.METHOD_NAME.equals(methodName) ) {
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> OPTIONS " + url);
+            hit(url, new HttpOptions(url), handler, requestHeaders);
+        } else if ( HttpTrace.METHOD_NAME.equals(methodName) ) {
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> TRACE " + url);
+            hit(url, new HttpTrace(url), handler, requestHeaders);
+        } else if ( HttpPost.METHOD_NAME.equals(methodName) ) { // POST
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> POST " + url);
+            HttpPost httpPost = new HttpPost(url);
+            httpPost.setEntity(handler.getReqBodyEntity());
+            hit(url, httpPost, handler, requestHeaders);
+        } else if ( HttpPut.METHOD_NAME.equals(methodName) ) { // PUT
+            if ( DEBUG_ENABLED ) LOG.debug("hit() - ===> PUT " + url);
+            HttpPut httpPut = new HttpPut(url);
+            httpPut.setEntity(handler.getReqBodyEntity());
+            hit(url, httpPut, handler, requestHeaders);
         } else {
             throw new IllegalArgumentException("hit(): Unsupported method => " + methodName);
         }
     }
 
-    /**
-     * Method to make POST request by sending file
-     */
-    public HttpHandler hit(String url, File body, Map<String, String> requestHeaders) throws Exception {
-
-        FileEntity entity = new FileEntity(body, ""); // second argument is contentType e.g.
-        // "text/plain; charset=\"UTF-8\"");
-        return hit(url, entity, requestHeaders);
-    }
-
-    /**
-     * Method to make POST request by sending input stream
-     */
-    public HttpHandler hit(String url, InputStream body, Map<String, String> requestHeaders) throws Exception {
-
-        InputStreamEntity entity = new InputStreamEntity(body, -1); // content length is unknown so -1
-        return hit(url, entity, requestHeaders);
-    }
-
-    public HttpHandler hit(String url, HttpEntity entity, Map<String, String> requestHeaders) throws Exception {
-        return hit(url, RCConstants.POST, entity, requestHeaders);
-    }
-
-    /**
-     * Method to make POST or PUT request by sending http entity (as body)
-     */
-    public HttpHandler hit(String url, String methodName, HttpEntity entity, Map<String, String> requestHeaders) throws Exception {
-
-        // url = encodeUrl(url);
-        if ( DEBUG_ENABLED ) LOG.debug("hit() - hitting service with entity; url=> " + url);
-
-        if ( HttpPost.METHOD_NAME.equals(methodName) ) { // POST
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setEntity(entity);
-            handler.setPostEntity(entity); // handler uses this entity to get content headers
-            if ( DEBUG_ENABLED )
-                LOG.debug("hit() - content type: " + httpPost.getEntity().getContentType() + "\ncontent encoding: "
-                    + httpPost.getEntity().getContentEncoding() + "\ncontent length: " + httpPost.getEntity().getContentLength());
-            return hit(url, httpPost, requestHeaders);
-        } else if ( HttpPut.METHOD_NAME.equals(methodName) ) { // PUT
-            HttpPut httpPut = new HttpPut(url);
-            httpPut.setEntity(entity);
-            handler.setPostEntity(entity); // handler uses this entity to get content headers
-            if ( DEBUG_ENABLED )
-                LOG.debug("hit() - content type: " + httpPut.getEntity().getContentType() + "\ncontent encoding: "
-                    + httpPut.getEntity().getContentEncoding() + "\ncontent length: " + httpPut.getEntity().getContentLength());
-            return hit(url, httpPut, requestHeaders);
-        }
-
-        return null;
-    }
-
-    private HttpHandler hit(String url, HttpUriRequest request, Map<String, String> requestHeaders) throws Exception {
+    private HttpHandler hit(String url, HttpUriRequest request, HttpHandler handler, Map<String, String> requestHeaders) throws Exception {
 
         if ( DEBUG_ENABLED ) LOG.debug("hit() - hitting url (params encoded) --> " + url);
 
         HttpResponse response = null;
-        // HttpHandler handler = new HttpHandler();
         HttpClient client = getHttpClient();
 
         // set request headers
@@ -280,10 +225,6 @@ public class Hitter {
         handler.setResponse(response);
         return handler;
 
-    }
-
-    private boolean isEntityEnclosingMethod(String methodName) {
-        return HttpPost.METHOD_NAME.equals(methodName) || HttpPut.METHOD_NAME.equals(methodName);
     }
 
     /*

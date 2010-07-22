@@ -23,7 +23,6 @@ import code.google.restclient.common.RCConstants;
 import code.google.restclient.common.RCUtil;
 import code.google.restclient.mime.MimeTypeUtil;
 
-
 /**
  * @author Yaduvendra.Singh
  */
@@ -198,7 +197,7 @@ public class ViewRequest {
     public String getUrlToHit() throws UnsupportedEncodingException {
         if ( url == null || "".equals(url) ) throw new IllegalArgumentException("URL can not be null");
         String urlToHit = url;
-        String paramsString = getParamsBodyStr(); // paramsStr;
+        String paramsString = getParamsBodyStr(false); // paramsStr;
 
         if ( !getParams().isEmpty() ) {
             if ( !RCUtil.isEntityEnclosingMethod(method)
@@ -212,11 +211,11 @@ public class ViewRequest {
     }
 
     public Map<String, String> getInputHeaders() throws UnsupportedEncodingException {
-        return RCUtil.populateMapFromStr(headersStr);
+        return RCUtil.getMapFromStr(headersStr);
     }
 
     public Map<String, String> getParams() {
-        return RCUtil.populateMapFromStr(paramsStr);
+        return RCUtil.getMapFromStr(paramsStr);
     }
 
     public String getBodyToPost() throws IOException { // if non multipart post
@@ -228,15 +227,24 @@ public class ViewRequest {
         return body;
     }
 
-    public String getParamsBodyStr() throws UnsupportedEncodingException {
+    public String getParamsBodyStr(boolean encode) throws UnsupportedEncodingException {
         String paramsString = paramsStr;
         if ( !RCUtil.isEntityEnclosingMethod(method) || (RCUtil.isEntityEnclosingMethod(method) && !(RCUtil.isEmpty(filePath) && isEmptyBodyStr())) ) {
             // encode '&' if they are going to be part of url
             paramsString = paramsString.replaceAll("&", RCUtil.encode("&"));
         }
-        paramsString = paramsString.replaceAll("\n", "&").replaceAll("\r", "");
-
-        return paramsString;
+        if ( !encode ) return paramsString.replaceAll("\n", "&").replaceAll("\r", "");
+        else {
+            StringBuilder sb = new StringBuilder();
+            Map<String, String> params = getParams();
+            for ( String name : params.keySet() ) {
+                sb.append("&");
+                sb.append(RCUtil.encode(name));
+                sb.append("=");
+                sb.append(RCUtil.encode(params.get(name))); // decode first to get encoded '&' back
+            }
+            return sb.toString().replaceFirst("&", "");
+        }
     }
 
     public String getDisplayHeaderPart() {
@@ -259,33 +267,67 @@ public class ViewRequest {
         StringBuilder displayBodyPart = new StringBuilder();
         try {
             if ( RCUtil.isEntityEnclosingMethod(method) ) {
-                if ( isMultipart ) {
-                    if ( !getParams().isEmpty() ) displayBodyPart.append(getParamsBodyStr());
-
-                    if ( !RCUtil.isEmpty(fileParamName) && !RCUtil.isEmpty(filePath) ) {
-                        if ( !getParams().isEmpty() ) displayBodyPart.append("&");
-                        displayBodyPart.append(fileParamName + "=");
-                        if ( isTextBodyOK() && getFileSize() != 0 && getFileSize() <= 5 ) {
-                            displayBodyPart.append(RCUtil.getFileContent(filePath, false));
-                        } else displayBodyPart.append("[content @ " + filePath + "]");
-                    }
-                } else if ( !RCUtil.isEmpty(filePath) ) {
-                    float size = (float) getFileSize() / 1024; // Kilo Bytes
-                    if ( isTextBodyOK() && size != 0 && size <= 5 ) {
-                        displayBodyPart.append(RCUtil.getFileContent(filePath, false));
-                    } else displayBodyPart.append("[content @ " + filePath + "]");
-                } else if ( !isEmptyBodyStr() ) displayBodyPart.append(bodyStr);
-                else if ( !getParams().isEmpty() ) displayBodyPart.append(getParamsBodyStr());
+                Map<String, String> params = getParams();
+                if ( isMultipart ) displayBodyPart.append(getMultipartDisplayBodyPart());
+                else if ( !RCUtil.isEmpty(filePath) ) displayBodyPart.append(getFileContent());
+                else if ( !isEmptyBodyStr() ) displayBodyPart.append(bodyStr);
+                else if ( !params.isEmpty() ) displayBodyPart.append(getParamsBodyStr(true));
             }
         } catch ( Exception e ) {
             LOG.error("getDisplayBodyPart(): error while preparing req body to display => ", e);
         }
-
         return displayBodyPart.toString();
     }
 
+    private String getMultipartDisplayBodyPart() throws IOException {
+        String contentType = headers.get("Content-Type");
+        if ( contentType != null && !contentType.startsWith(RCConstants.MULTIPART_CONTENT_TYPE) ) return "";
+
+        String boundaryStr = "-----------------------------" + contentType.substring(contentType.indexOf("boundary"));
+        String paramTmpl =
+            boundaryStr + " Content-Disposition: form-data; name=\"@PARAM_NAME@\";" + "\nContent-Type: text/plain; charset=\"UTF-8\"" + "\n"
+                + "\n@PARAM_VALUE@";
+        String fileTmpl =
+            boundaryStr + " Content-Disposition: form-data; name=\"@PARAM_NAME@\"; filename=\"@FILE_NAME@\"" + "\nContent-Type: text/plain" + "\n"
+                + "\n@FILE_CONTENT@";
+
+        StringBuilder sb = new StringBuilder();
+        for ( String paramName : getParams().keySet() ) {
+            sb.append("\n");
+            String paramBodyStr = paramTmpl.replace("@PARAM_NAME@", RCUtil.encode(paramName));
+            paramBodyStr = paramBodyStr.replace("@PARAM_VALUE@", RCUtil.encode(getParams().get(paramName)));
+            sb.append(paramBodyStr);
+        }
+        if ( !RCUtil.isEmpty(fileParamName) && !RCUtil.isEmpty(filePath) ) {
+            String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+            String fileStr = fileTmpl.replace("@PARAM_NAME@", fileParamName);
+            fileStr = fileStr.replace("@FILE_NAME@", fileName);
+            fileStr = fileStr.replace("@FILE_CONTENT@", getFileContent());
+            sb.append("\n");
+            sb.append(fileStr);
+        }
+        sb.append("\n" + boundaryStr + "--");
+        return sb.toString().replaceFirst("\n", "");
+    }
+
+    private String getSimpleMultipartDisplayBodyPart() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        if ( !getParams().isEmpty() ) sb.append(getParamsBodyStr(true));
+
+        if ( !RCUtil.isEmpty(fileParamName) && !RCUtil.isEmpty(filePath) ) {
+            if ( !getParams().isEmpty() ) sb.append("&");
+            sb.append(fileParamName + "=" + getFileContent());
+        }
+        return sb.toString();
+    }
+
+    private String getFileContent() throws UnsupportedEncodingException, IOException {
+        float size = (float) getFileSize() / 1024; // Kilo Bytes
+        if ( isTextBodyOK() && size != 0 && size <= 5 ) return RCUtil.getFileContent(filePath, false);
+        else return "[content @ " + filePath + "]";
+    }
+
     private boolean isEmptyBodyStr() {
-        // if( !RCUtil.isEmpty(bodyStr) && !RCConstants.BODY_TEXT.equals(bodyStr) ) return false;
         if ( !RCUtil.isEmpty(bodyStr) && !RCConstants.BODY_TEXT.equals(bodyStr) ) return false;
         else return true;
     }
@@ -316,8 +358,8 @@ public class ViewRequest {
                 File file = new File(filePath);
                 String mimeType = MimeTypeUtil.getMimeType(file); // use stream first
                 // use extension
-                if ( "application/octet-stream".equals(mimeType) ) mimeType = MimeTypeUtil.getMimeType(filePath);
-                if ( !"application/octet-stream".equals(mimeType) ) {
+                if ( RCConstants.OCTET_MIME_TYPE.equals(mimeType) ) mimeType = MimeTypeUtil.getMimeType(filePath);
+                if ( !RCConstants.OCTET_MIME_TYPE.equals(mimeType) ) {
                     String mediaType = MimeTypeUtil.getMediaType(filePath);
                     if ( "text".equalsIgnoreCase(mediaType) ) isText = true;
                 }

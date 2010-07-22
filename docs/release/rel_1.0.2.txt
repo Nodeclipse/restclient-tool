@@ -1,0 +1,14 @@
+
+Fix for Issues:
+1. http://code.google.com/a/eclipselabs.org/p/restclient-tool/issues/detail?id=1
+2. http://code.google.com/a/eclipselabs.org/p/restclient-tool/issues/detail?id=2
+
+List Issues/Enhancements:
+1. New lines (CR) get removed from text file while submitting it as POST body.
+2. Some time response body is displayed in a single line. It should be displayed as is if no indentation.
+3. Content-Type header goes blank when posting any file.
+4. Display body part of request pane is not encoded (with UTF-8) while actually client submits encoded params body string. It is misleading.
+5. Request pane doesn't display content if request results erroneous response.
+6. Request pane doesn't display actual post body message format if request is multipart/form-data.
+7. Add OPTIONS and TRACE HTTP methods.
+8. Do not verify host names in SSL certificate. Allow all host names. E.g. https://bamutil.qa.mlb.com/utils-dashboard/linkgen/

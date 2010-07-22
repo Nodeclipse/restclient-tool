@@ -1,7 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010 Yadu. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public
- * License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: Yadu - initial API
- * and implementation
+ * Copyright (c) 2010 Yadu.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Yadu - initial API and implementation
  ******************************************************************************/
 
 package code.google.restclient.client;
@@ -22,9 +27,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.FileEntity;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -60,36 +70,51 @@ public class HitterClient {
 
     public void hit(ViewRequest req, ViewResponse resp) throws RCException {
         Hitter hitter = new Hitter();
-        HttpHandler handler = null;
-        String url = null;
+        HttpHandler handler = new HttpHandler();
         // hitter.setProxy("", -1); // set proxy taking values from UI
         try {
-            url = req.getUrlToHit();
-            if ( !RCUtil.isEntityEnclosingMethod(req.getMethod()) ) {
-                handler = hitter.hit(url, req.getMethod(), "", req.getInputHeaders());
-            } else {
-                if ( req.isPostParams() ) {
-                    handler = hitter.hit(url, getParamsPostEntity(req), req.getInputHeaders());
-                } else if ( req.isMultipart() ) {
-                    handler = hitter.hit(url, getMultipartEntity(req), req.getInputHeaders());
-                } else {
-                    String body = req.getBodyToPost();
-                    handler = hitter.hit(url, req.getMethod(), body, req.getInputHeaders());
-                }
+            String url = req.getUrlToHit();
+            HttpEntity reqBodyEntity = null;
+            if ( RCUtil.isEntityEnclosingMethod(req.getMethod()) ) { // if request method has body
+                if ( req.isPostParams() ) reqBodyEntity = getUrlEncodedFormEntity(req);
+                else if ( req.isMultipart() ) reqBodyEntity = getMultipartEntity(req);
+                else reqBodyEntity = getStringOrFileEntity(req.getBodyToPost());
+                handler.setReqBodyEntity(reqBodyEntity);
             }
-            req = prepareViewRequest(req, handler);
-            resp = prepareViewResponse(resp, handler);
-            if ( !handler.isReqAborted() ) handler.closeConnection();
+            hitter.hit(url, req.getMethod(), handler, req.getInputHeaders());
         } catch ( UnknownHostException uhe ) {
             LOG.error("hit(): Error: Uknown host", uhe);
             throw new RCException("Error: Uknown host");
         } catch ( Exception e ) {
             LOG.error("hit(): Error occured while hiting url", e);
             throw new RCException("Error: " + RCUtil.removeMethodName(e.getMessage()));
+        } finally {
+            req = prepareViewRequest(req, handler);
+            resp = prepareViewResponse(resp, handler);
+            if ( !handler.isReqAborted() ) handler.closeConnection();
         }
     }
 
-    private UrlEncodedFormEntity getParamsPostEntity(ViewRequest req) throws RCException {
+    /* ***************** Entity creator methods ***************** */
+    private HttpEntity getStringOrFileEntity(String body) throws RCException {
+        if ( body == null ) body = "";
+        HttpEntity reqEntity = null;
+        if ( body.startsWith("@") ) {
+            String path = Pattern.compile("^@").matcher(body).replaceAll("");
+            String mimeType = MimeTypeUtil.getMimeType(path);
+            // TODO not specifying charset as part of mime type i.e. "text/plain" and not "text/plain; charset=UTF-8"
+            reqEntity = new FileEntity(new File(path), mimeType); // second argument is contentType e.g. "text/plain; charset=\"UTF-8\"");
+        } else {
+            try {
+                reqEntity = new StringEntity(body, RCConstants.DEFAULT_CHARSET);
+            } catch ( UnsupportedEncodingException e ) {
+                throw new RCException("getStringOrFileEntity(): Could not prepare string post entity due to unsupported encoding", e);
+            }
+        }
+        return reqEntity;
+    }
+
+    private UrlEncodedFormEntity getUrlEncodedFormEntity(ViewRequest req) throws RCException {
         List<NameValuePair> formparams = new ArrayList<NameValuePair>();
         Map<String, String> params = req.getParams();
         for ( String paramName : params.keySet() ) {
@@ -97,9 +122,12 @@ public class HitterClient {
         }
         try {
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, RCConstants.DEFAULT_CHARSET);
+            if ( DEBUG_ENABLED ) LOG.debug("getParamsPostEntity() - post body: " + streamToString(entity.getContent()));
             return entity;
         } catch ( UnsupportedEncodingException e ) {
             throw new RCException("getParamsPostEntity(): Could not prepare params post entity due to unsupported encoding", e);
+        } catch ( IOException e ) {
+            throw new RCException("getParamsPostEntity(): request entity body could not be read");
         }
     }
 
@@ -117,10 +145,10 @@ public class HitterClient {
             }
             String fileParamName = req.getFileParamName();
             File selectedFile = new File(req.getFilePath());
-            // String mimeType = MimeTypeUtil.getMimeType(selectedFile);
-            // FileBody fileBody = new FileBody(selectedFile, mimeType, ""); // last argument is charset
+
             if ( selectedFile.exists() && !RCUtil.isEmpty(fileParamName) ) {
-                FileBody fileBody = new FileBody(selectedFile);
+                String mimeType = MimeTypeUtil.getMimeType(req.getFilePath());
+                FileBody fileBody = new FileBody(selectedFile, mimeType);
                 reqEntity.addPart(fileParamName, fileBody);
             }
         } catch ( UnsupportedEncodingException e ) {
@@ -129,6 +157,23 @@ public class HitterClient {
         return reqEntity;
     }
 
+    /**
+     * Method to get file entity from file object
+     */
+    private FileEntity hit(File body) throws Exception {
+        FileEntity fileEntity = new FileEntity(body, ""); // second argument is contentType e.g. "text/plain; charset=\"UTF-8\"");
+        return fileEntity;
+    }
+
+    /**
+     * Method to make get input stream entity from input stream object
+     */
+    private InputStreamEntity hit(InputStream body) throws Exception {
+        InputStreamEntity isEntity = new InputStreamEntity(body, -1); // content length is unknown so -1
+        return isEntity;
+    }
+
+    /* ***************** Methods to prepare view request and response objects ***************** */
     private ViewRequest prepareViewRequest(ViewRequest req, HttpHandler handler) {
         if ( handler != null && req != null ) {
             req.setReqLine(handler.getRequestLine());
@@ -170,6 +215,7 @@ public class HitterClient {
         return resp;
     }
 
+    /* ***************** Helper methods ***************** */
     private String streamToString(HttpHandler handler) throws RCException {
         InputStream is = handler.getResponseStream();
         if ( is == null ) return null;
@@ -178,6 +224,7 @@ public class HitterClient {
         String line = null;
         try {
             while ( (line = reader.readLine()) != null ) {
+                sb.append("\n");
                 if ( abort ) {
                     handler.abort();
                     abort = false;
@@ -193,9 +240,30 @@ public class HitterClient {
             } catch ( IOException e ) {
                 throw new RCException("streamToString(): error occurred while closing input stream", e);
             }
-
         }
-        return sb.toString();
+        return sb.toString().replaceFirst("\n", "");
+    }
+
+    private String streamToString(InputStream is) throws RCException {
+        if ( is == null ) return null;
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String line = null;
+        try {
+            while ( (line = reader.readLine()) != null ) {
+                sb.append("\n");
+                sb.append(line);
+            }
+        } catch ( IOException e ) {
+            throw new RCException("streamToString(): error occurred while converting response stream to string", e);
+        } finally {
+            try {
+                if ( reader != null ) reader.close();
+            } catch ( IOException e ) {
+                throw new RCException("streamToString(): error occurred while closing input stream", e);
+            }
+        }
+        return sb.toString().replaceFirst("\n", "");
     }
 
     private File streamToFile(HttpHandler handler, String contentType) throws RCException {

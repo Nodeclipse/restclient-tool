@@ -2,7 +2,7 @@
 <feature
       id="code.google.restclient.tool.feature"
       label="RestClient Tool"
-      version="1.0.1"
+      version="1.0.2"
       provider-name="Yadu">
 
    <description url="http://code.google.com/a/eclipselabs.org/p/restclient-tool/">
@@ -142,7 +142,7 @@
          id="code.google.restclient.tool"
          download-size="0"
          install-size="0"
-         version="1.0.1"
+         version="1.0.2"
          unpack="false"/>
 
 </feature>

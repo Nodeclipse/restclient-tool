@@ -1,7 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010 Yadu. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public
- * License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: Yadu - initial API
- * and implementation
+ * Copyright (c) 2010 Yadu.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Yadu - initial API and implementation
  ******************************************************************************/
 
 package code.google.restclient.ui;
@@ -199,9 +204,11 @@ public class MainWindow {
         httpActionCombo = new CCombo(shellComposite, SWT.BORDER);
         httpActionCombo.add("GET");
         httpActionCombo.add("POST");
-        httpActionCombo.add("HEAD");
-        httpActionCombo.add("DELETE");
         httpActionCombo.add("PUT");
+        httpActionCombo.add("DELETE");
+        httpActionCombo.add("HEAD");
+        httpActionCombo.add("OPTIONS");
+        httpActionCombo.add("TRACE");
         httpActionCombo.select(0);
         httpActionCombo.setEditable(false);
         whiteColor = new Color(Display.getCurrent(), 255, 255, 255);
@@ -447,6 +454,7 @@ public class MainWindow {
 
     private void processRequest() {
         String url = Validator.validateUrl(location.getText());
+        location.setText(url); // Reflect validated url
         if ( url != null ) {
             // Prepare req
             req.setUrl(url);
@@ -494,8 +502,10 @@ public class MainWindow {
                         display.syncExec(new Runnable() {
                             @Override
                             public void run() {
-                                // ex.printStackTrace();
+                                populateReqPan(reqPaneText); // Populate request even if response failed with error
+                                req.clear();
                                 respPaneText.setText(ex.getMessage());
+                                resp.clear();
                             }
                         });
                     } finally {
@@ -620,9 +630,9 @@ public class MainWindow {
             bodyTextCheck.setSelection(false); // Disable body check box
         }
     }
-    /*
-        public static void main(String[] args) {
-            new MainWindow().open();
-        }
-    */
+
+    public static void main(String[] args) {
+        new MainWindow().open();
+    }
+
 }
