@@ -112,7 +112,7 @@
     	<propertyfile file="${build.dir}/core/rest-client.properties" comment="Some properties added by build">
         	<entry key="system.check" value="false"/>
         </propertyfile>
-    	<jar destfile="${dist.dir}/${app.name}-core-${app.version}.jar">
+    	<jar destfile="${dist.dir}/${app.name}-core_${app.version}.jar">
 			<fileset dir="${build.dir}/core">
 				<include name="**/*"/>
 				<include name="**/*"/>
@@ -136,7 +136,7 @@
           target: build-fat-jar              
          ================================= -->
 	<target name="build-fat-jar" depends="build,add-rest-client-props" description="create distributable fat jar">
-        <fatjar.build output="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar">
+        <fatjar.build output="${dist.dir}/${app.name}-${build.type}_${os.jar.name}_${app.version}.jar">
         	<fatjar.manifest mainclass="code.google.restclient.init.Launcher"/> <!-- mergemanifests="false"  -->
             <fatjar.filesource path="${compile.dir}" relpath=""/>
         	<fatjar.filesource path="${build.resource.dir}" relpath=""/>
