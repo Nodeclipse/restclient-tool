@@ -53,3 +53,6 @@ Build/Package Standalone version
 		5. Save the configuration.
 		6. Exe file is generated at restclient-tool/trunk/standalone/dist/rc-tool_<version>.exe
 		
+		
+Reference:
+	http://www.eclipse.org/articles/article.php?file=Article-Update/index.html
