@@ -17,10 +17,25 @@ Build Plugin
 		   Make sure Add restclient-tool/trunk/eclipse/plugin/lib/rc-tool-core_<version>.jar is selected.
 		5. Use 'Export Wizard' to build plugin from overview tab under 'Exporting'.
 		6. Plugin jar should be created under restclient-tool/trunk/eclipse/plugin/dist
-
-
+		
+	Build Feature
+	-------------
+		Feature provides a way to group a set of plugins which are meant to collectively satisfy some objective.
+		1. Open restclient-tool/trunk/eclipse/feature/feature.xml in wizard editor.
+		2. Change version under 'Overview' tab.
+		3. Remove older version of plugin and add new version plugin under 'Plug-ins' tab.
+		4. Save feature.xml
+	
+	Update Site (publish plugin)
+	----------------------------
+		1. Open restclient-tool/trunk/eclipse/update/site.xml in wizard editor
+		2. Remove older version of plugin and add new version plugin under 'Site Map' tab.
+		3. Build All to generate all publish artifacts.
+		4. Check-in all the newly generated/updated stuff to repository.
+		
 Build/Package Standalone version
 ---------------------------------
+
 	Build Executable Jar
 	---------------------
 		1. Execute build-clean-fat-jar target
