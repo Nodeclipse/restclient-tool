@@ -568,7 +568,7 @@ public class MainWindow {
 
     private String getPrettyTxt(String text) {
         // Pretty XML
-        if ( text.trim().startsWith("<") ) return Formatter.getIndentedXml(text, 2);
+        if ( text.trim().startsWith("<?xml") ) return Formatter.getIndentedXml(text, 2);
         // Pretty Json
         if ( text.trim().startsWith("{") ) return Formatter.getIndentedJson(text, 2);
         return "";

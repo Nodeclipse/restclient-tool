@@ -1,0 +1,10 @@
+Enhancements on SSL Handling
+----------------------------
+
+Fixed issue:
+	http://code.google.com/a/eclipselabs.org/p/restclient-tool/issues/detail?id=8
+
+Documentation:
+	http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/docs/ssl-handling.txt
+	http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/standalone/conf/rest-client_override.properties
+	

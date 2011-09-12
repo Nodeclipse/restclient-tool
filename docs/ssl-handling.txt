@@ -1,0 +1,33 @@
+SSL Handling
+--------------
+By default RestClient is configured to disable verification of SSL certificate and hostname. 
+So default allows working over SSL connection without respecting SSL at all. This behavior can be
+controlled by overriding default SSL properties. For that one should copy property file
+http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/standalone/conf/rest-client_override.properties
+to user's home directory and adjust properties as explained below.
+
+i.e.
+use.self.signed.cert.verifier=false
+disable.ssl.cert.verifier=true
+disable.host.name.verifier=true
+
+Verify Self Signed Certificate
+---------------------------------
+Self signed certificate verifier can be enabled by setting property
+use.self.signed.cert.verifier=true
+
+When it's enabled all standard SSL certificates may pass because it uses only first certificate from chain of certificates.
+
+Verify Standard SSL Certificates
+----------------------------------
+To verify SSL certificates which are signed by CA as recognized by JVM (contains certificates of CAs, distributed with JVM).
+Set these properties
+
+use.self.signed.cert.verifier=false	(make sure self signed certificate verifier is to set false)
+disable.ssl.cert.verifier=false
+
+Verify Hostname
+----------------
+To verify hostname contained in certificate, set property
+
+disable.host.name.verifier=false

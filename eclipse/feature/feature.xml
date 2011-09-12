@@ -2,28 +2,29 @@
 <feature
       id="code.google.restclient.tool.feature"
       label="RestClient Tool"
-      version="1.0.2"
+      version="1.0.3"
       provider-name="Yadu">
 
    <description url="http://code.google.com/a/eclipselabs.org/p/restclient-tool/">
       Feature rich rest client for developers to test RESTful web services.
-  It can be used to test
-  any HTTP URL for HTTP methods given below
-  - GET
-  - POST
-  - PUT
-  - DELETE
-  - HEAD
-  Main Feaures:
-  1. Simultaneous views of request, response and browser.
-  2. Post text file, binary file or any raw data as body of POST
-     request.
-  3. Post multipart form data.
-  4. Handling of text as well as binary response. Saves binary
-  response in local file for reference.
-  5. Allows to write params directly as part of URL or each param
-  on separate line in params box.
-  Update Site: http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/
+
+It can be used to test HTTP URL for any HTTP method
+- GET
+- POST
+- PUT
+- DELETE
+- HEAD
+- OPTIONS
+- TRACE
+
+Main Feaures:
+1. Simultaneous views of request, response and browser.
+2. Post text file, binary file or any raw data as body of POST request.
+3. Post multipart form data.
+4. Handling of text as well as binary response. Saves binary response in local file for reference.
+5. Allows to write params directly as part of URL or each param on separate line in params box.
+
+Update Site: http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/
    </description>
 
    <copyright>
@@ -138,11 +139,16 @@
       <update label="http://code.google.com/a/eclipselabs.org/p/restclient-tool/" url="http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/"/>
    </url>
 
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+   </requires>
+
    <plugin
          id="code.google.restclient.tool"
          download-size="0"
          install-size="0"
-         version="1.0.2"
+         version="1.0.3"
          unpack="false"/>
 
 </feature>

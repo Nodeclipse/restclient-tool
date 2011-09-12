@@ -67,7 +67,7 @@ public class Configurator {
      * @return tempDirPath - user home temporary rest-client directory path
      */
     public static String getTempDirPath() {
-        return System.getProperty("user.home") + File.separator + "temp" + File.separator + "." + RCConstants.APP_DISPLAY_NAME.toLowerCase();
+        return RCUtil.getUserHome() + File.separator + "temp" + File.separator + "." + RCConstants.APP_DISPLAY_NAME.toLowerCase();
     }
 
     private static void initLog4j() throws IOException {

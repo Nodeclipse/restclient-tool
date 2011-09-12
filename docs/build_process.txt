@@ -1,0 +1,40 @@
+Build Plugin
+-------------
+
+	Build RestClient Tool Core Jar
+	-------------------------------
+		1. Update property app.version=<new version> i.e. app.version=1.0.3 in restclient-tool/trunk/standalone/build.properties file
+		2. Execute ant target 'build-core-jar' of restclient-tool/trunk/standalone/build-standalone.xml
+		3. Copy newly generated trunk/standalone/dist/rc-tool-core_<version>.jar to trunk/eclipse/plugin/lib
+
+	Build Eclipse Plugin
+	---------------------	
+		1. Open restclient-tool/trunk/eclipse/plugin/plugin.xml on UI editor.
+		2. Update version number to new version.
+		3. Add restclient-tool/trunk/eclipse/plugin/lib/rc-tool-core_<version>.jar to runtime dependencies.
+		   Adjust other runtime dependencies if required (add/remove libraries out of restclient-tool/trunk/eclipse/plugin/lib)
+		4. Select source, libraries and resources for 'binary build' under build tab. Do same for 'source build' if exporting code as well.
+		   Make sure Add restclient-tool/trunk/eclipse/plugin/lib/rc-tool-core_<version>.jar is selected.
+		5. Use 'Export Wizard' to build plugin from overview tab under 'Exporting'.
+		6. Plugin jar should be created under restclient-tool/trunk/eclipse/plugin/dist
+
+
+Build/Package Standalone version
+---------------------------------
+	Build Executable Jar
+	---------------------
+		1. Execute build-clean-fat-jar target
+		2. Select operating system
+		3. One complete jar containing everything required is create at restclient-tool/trunk/standalone/dist/rc-tool-SA_<os_version>.jar
+		
+	Package Executable Jar as Exe
+	------------------------------
+		1. Install launch4j if it's not installed already.
+		2. Update restclient-tool/trunk/standalone/dev-local/launch4j.xml 
+			a. Set path of executable jar, generated in previous steps, to <jar> </jar> tag.
+			b. Change version number of output exe file under <outfile> </outfile>.
+		3. Run launch4j and select restclient-tool/trunk/standalone/dev-local/launch4j.xml
+		4. Execute 'Build Wrapper'.
+		5. Save the configuration.
+		6. Exe file is generated at restclient-tool/trunk/standalone/dist/rc-tool_<version>.exe
+		

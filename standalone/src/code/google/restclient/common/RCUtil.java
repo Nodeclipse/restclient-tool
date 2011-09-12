@@ -13,6 +13,7 @@ package code.google.restclient.common;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +35,8 @@ public class RCUtil {
 
     private static final Logger LOG = Logger.getLogger(RCUtil.class);
     private static final boolean DEBUG_ENABLED = LOG.isDebugEnabled();
+
+    private static Properties OVERRIDE_SSL_PROPS = new Properties();
 
     public static boolean isEmpty(String str) {
         if ( str != null && !"".equals(str.trim()) ) return false;
@@ -165,4 +169,26 @@ public class RCUtil {
         File file = new File(filePath);
         return deleteFile(file);
     }
+
+    public static String getUserHome() {
+        return System.getProperty("user.home");
+    }
+
+    public static String getSSLOverrideProperty(String key) {
+        if ( OVERRIDE_SSL_PROPS.size() == 0 ) loadOverrideSSLProps();
+        return OVERRIDE_SSL_PROPS.getProperty(key);
+    }
+
+    private static void loadOverrideSSLProps() {
+        String filePath = getUserHome() + File.separator + RCConstants.SSL_OVERRIDE_PROP_FILE_NAME;
+
+        if ( new File(filePath).exists() ) {
+            try {
+                OVERRIDE_SSL_PROPS.load(new FileInputStream(filePath));
+            } catch ( Exception e ) {
+                LOG.error("could not load ssl override prop file: " + filePath, e);
+            }
+        }
+    }
+
 }

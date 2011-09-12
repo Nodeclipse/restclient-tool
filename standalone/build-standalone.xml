@@ -20,10 +20,10 @@
 
 	<path id="classpath">
 		<fileset dir="${lib.dir}" id="libjars">
-			<include name="httpclient-4.1-alpha1.jar"/>
-			<include name="httpcore-4.1-alpha1.jar"/>
-			<include name="httpcore-nio-4.1-alpha1.jar"/>
-			<include name="httpmime-4.1-alpha1.jar"/>
+			<include name="httpclient-4.1.jar"/>
+			<include name="httpcore-4.1.jar"/>
+			<include name="httpcore-nio.jar"/>
+			<include name="httpmime-4.1.jar"/>
 			<include name="apache-mime4j-0.6.jar"/>
 			<include name="swt-3.5.2-win32x86.jar"/>
 			<include name="log4j-1.2.16.jar"/>
@@ -130,21 +130,22 @@
         	<entry key="java.version" value="${java.version}"/>
         	<entry key="os.name" value="${os.family.name}"/>
         </propertyfile>
+    	<property name="fat.jar.file.name" value="${dist.dir}/${app.name}-${build.type}_${os.jar.name}_${app.version}.jar"/>
     </target>
 	
 	<!-- ================================= 
           target: build-fat-jar              
          ================================= -->
 	<target name="build-fat-jar" depends="build,add-rest-client-props" description="create distributable fat jar">
-        <fatjar.build output="${dist.dir}/${app.name}-${build.type}_${os.jar.name}_${app.version}.jar">
+        <fatjar.build output="${fat.jar.file.name}">
         	<fatjar.manifest mainclass="code.google.restclient.init.Launcher"/> <!-- mergemanifests="false"  -->
             <fatjar.filesource path="${compile.dir}" relpath=""/>
         	<fatjar.filesource path="${build.resource.dir}" relpath=""/>
         	        	
-            <fatjar.jarsource file="${lib.dir}/httpclient-4.1-alpha1.jar" relpath=""/>
-            <fatjar.jarsource file="${lib.dir}/httpcore-4.1-alpha1.jar" relpath=""/>
-            <fatjar.jarsource file="${lib.dir}/httpcore-nio-4.1-alpha1.jar" relpath=""/>
-            <fatjar.jarsource file="${lib.dir}/httpmime-4.1-alpha1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpclient-4.1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpcore-4.1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpcore-nio-4.1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib.dir}/httpmime-4.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/apache-mime4j-0.6.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/swt-3.5.2-${os.jar.name}.jar" relpath=""/>
         	<fatjar.jarsource file="${lib.dir}/log4j-1.2.16.jar" relpath=""/>
@@ -163,9 +164,9 @@
           target: build-clean-fat-jar              
          ================================= -->
 	<target name="build-clean-fat-jar" depends="build-fat-jar" description="creates fat jar after deleting info files of depenedency jars">
-		<unjar src="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar" dest="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}"/>
+		<unjar src="${fat.jar.file.name}" dest="${dist.dir}/temp"/>
 
-		<fileset dir="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}" id="infoFiles">
+		<fileset dir="${dist.dir}/temp" id="infoFiles">
 		    <include name="**/README.txt"/>
 			<include name="**/README"/>
 			<include name="**/NOTICE.txt"/>
@@ -180,16 +181,16 @@
 		</fileset>
 		<delete>
 		    <fileset refid="infoFiles"/>
-			<fileset dir="${dist.dir}" includes="${app.name}-${build.type}_${os.jar.name}-${app.version}.jar"/>
 		</delete>
+		<delete file="${fat.jar.file.name}" />
 		
-		<jar destfile="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar" manifest="${conf.dir}/META-INF/MANIFEST.MF">
-			<fileset dir="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}">
+		<jar destfile="${fat.jar.file.name}" manifest="${conf.dir}/META-INF/MANIFEST.MF">
+			<fileset dir="${dist.dir}/temp">
 				<include name="**/*"/>
 			</fileset>
 		</jar>		
-		<delete dir="${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}"/>
-        <echo message="fat jar created @ ${dist.dir}/${app.name}-${build.type}_${os.jar.name}-${app.version}.jar"/>
+		<delete dir="${dist.dir}/temp"/>
+        <echo message="fat jar created @ ${fat.jar.file.name}"/>
 	</target>
 
 	<!-- ================================= 

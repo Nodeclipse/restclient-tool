@@ -22,6 +22,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.util.EntityUtils;
 
 import code.google.restclient.common.RCConstants;
 import code.google.restclient.common.RCUtil;
@@ -160,9 +161,7 @@ public class HttpHandler {
         if ( response != null ) {
             Header[] headers = response.getAllHeaders();
             for ( Header header : headers ) {
-                if ( !RCUtil.isEmpty(header.getName()) ) {
-                    respHeaders.put(header.getName(), header.getValue());
-                }
+                if ( !RCUtil.isEmpty(header.getName()) ) respHeaders.put(header.getName(), header.getValue());
             }
         }
         return respHeaders;
@@ -170,9 +169,8 @@ public class HttpHandler {
 
     public InputStream getResponseStream() throws RCException {
         try {
-            if ( respEntity != null ) {
-                return respEntity.getContent();
-            }
+            if ( respEntity != null ) return respEntity.getContent();
+
         } catch ( Exception e ) {
             throw new RCException("getResponseStream(): error while reading response", e);
         }
@@ -186,7 +184,7 @@ public class HttpHandler {
      */
     public void closeConnection() throws RCException {
         try {
-            if ( respEntity != null ) respEntity.consumeContent();
+            EntityUtils.consume(respEntity);
         } catch ( Exception e ) {
             throw new RCException("closeConnection(): error while closing connection", e);
         }

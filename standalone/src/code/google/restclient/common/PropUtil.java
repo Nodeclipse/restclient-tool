@@ -53,6 +53,14 @@ public class PropUtil {
         }
     }
 
+    public static String getProperty(String propName) {
+        return getProperty(propName, null, null);
+    }
+
+    public static String getProperty(String propName, String defaultVal) {
+        return getProperty(propName, defaultVal, null);
+    }
+
     /**
      * @param propName
      * @param defaultVal
@@ -71,12 +79,8 @@ public class PropUtil {
         return propVal;
     }
 
-    public static String getProperty(String propName, String propFileName) {
+    public static String getPropertyFromFile(String propName, String propFileName) {
         return getProperty(propName, null, propFileName);
-    }
-
-    public static String getProperty(String propName) {
-        return getProperty(propName, null, null);
     }
 
 }

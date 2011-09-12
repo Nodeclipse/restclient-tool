@@ -11,8 +11,18 @@
 
 package code.google.restclient.core;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -32,8 +42,8 @@ import org.apache.http.conn.params.ConnRouteParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
@@ -43,6 +53,7 @@ import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.log4j.Logger;
 
 import code.google.restclient.common.RCConstants;
+import code.google.restclient.common.RCUtil;
 
 /**
  * @author Yaduvendra.Singh
@@ -52,14 +63,19 @@ public class Hitter {
     private static final Logger LOG = Logger.getLogger(Hitter.class);
     private static final boolean DEBUG_ENABLED = LOG.isDebugEnabled();
 
+    private static HttpClient client = null;
     private static ClientConnectionManager conman = null;
     private String proxyHost = RCConstants.SYS_PROXY_ENABLED;
     private int proxyPort = -1;
     private Map<String, String> headers;
 
+    // Dummy object for synchronizing getHttpClient()
+    private final Object lock;
+
     public Hitter() {
         configureSysProxy();
         headers = new LinkedHashMap<String, String>();
+        lock = new Object();
     }
 
     public Hitter(Map<String, String> headers) {
@@ -106,65 +122,6 @@ public class Hitter {
         if ( proxyPort == -1 ) return false;
 
         return true;
-    }
-
-    /*
-     * Since DefaultHttpClient and its connection manager are all thread-safe, all HttpClient
-     * impl configuration should be synchronized. this entire dance is here because we want to use
-     * a ThreadSafeClientConnManager and not the SingleClientConnManager.
-     */
-    private synchronized HttpClient getHttpClient() {
-        HttpClient client = null;
-        HttpParams params = new SyncBasicHttpParams();
-
-        // set proxy
-        if ( isProxyConfigured() ) {
-            if ( DEBUG_ENABLED ) LOG.debug("CONFIGURING PROXY TO " + proxyHost + ":" + proxyPort);
-            HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-            ConnRouteParams.setDefaultProxy(params, proxy);
-        }
-
-        // http params apply at client level so shared by all request
-        // they can be overridden by params set at request level
-        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setContentCharset(params, RCConstants.DEFAULT_CHARSET);
-        HttpProtocolParams.setUserAgent(params, RCConstants.APP_DISPLAY_NAME);
-        HttpClientParams.setRedirecting(params, true);
-
-        /*
-         HttpConnectionParams.setTcpNoDelay(params, true); HttpConnectionParams.setLinger(params, 30);
-         HttpConnectionParams.setConnectionTimeout(params, 30000); HttpConnectionParams.setSoTimeout(params, 30000);
-         HttpProtocolParams.setUseExpectContinue(params, false); HttpClientParams.setCookiePolicy(params,
-         CookiePolicy.BROWSER_COMPATIBILITY);
-         */
-
-        // Registry creation code copied from impl of DefaultHttpClient. It looks we don't have to register
-        // a separate Scheme for each weird port
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), RCConstants.PLAIN_SOCKET_PORT));
-        SSLSocketFactory sslFactory = SSLSocketFactory.getSocketFactory();
-        if ( RCConstants.DISABLE_HOST_NAME_VERIFIER ) {
-            // TODO AllowAllHostnameVerifier doesn't verify host names contained in ssl certificate. It should not be set
-            // in production environment. It may allow man in middle attack. Other host name verifiers for specific needs
-            // are StrictHostnameVerifier and X509HostnameVerifier.
-            sslFactory.setHostnameVerifier(new AllowAllHostnameVerifier());
-        }
-        registry.register(new Scheme("https", sslFactory, RCConstants.SSL_SOCKET_PORT));
-
-        if ( conman == null ) conman = new ThreadSafeClientConnManager(registry);
-
-        if ( client == null ) {
-            client = new DefaultHttpClient(conman);
-            ((DefaultHttpClient) client).setParams(params);
-            ((DefaultHttpClient) client).setKeepAliveStrategy(new CustomKeepAliveStrategy());
-            // set custom request retry handler which doesn't allow retry for POST request
-            // HttpRequestRetryHandler retryHandler = new CustomRetryHandler();
-            // ((DefaultHttpClient) client).setHttpRequestRetryHandler(retryHandler);
-
-            // client.getParams().setParameter(CoreProtocolPNames.WAIT_FOR_CONTINUE, 10000); // 10 seconds
-        }
-
-        return client;
     }
 
     /**
@@ -228,18 +185,160 @@ public class Hitter {
     }
 
     /*
+     * Since DefaultHttpClient and its connection manager are all thread-safe, all HttpClient
+     * impl configuration should be synchronized. this entire dance is here because we want to use
+     * a ThreadSafeClientConnManager and not the SingleClientConnManager.
+     */
+    private HttpClient getHttpClient() throws KeyManagementException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+        // Early exit: already configured. Want all the gets to be fast so not synchronizing it
+        if ( client != null ) return client;
+
+        synchronized ( lock ) {
+            HttpParams params = new SyncBasicHttpParams();
+
+            // Set proxy
+            if ( isProxyConfigured() ) {
+                if ( DEBUG_ENABLED ) LOG.debug("CONFIGURING PROXY TO => " + proxyHost + ":" + proxyPort);
+                HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+                ConnRouteParams.setDefaultProxy(params, proxy);
+            }
+
+            // http params apply at client level so shared by all request. They can be overridden by params set at request level.
+            HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+            HttpProtocolParams.setContentCharset(params, RCConstants.DEFAULT_CHARSET);
+            HttpProtocolParams.setUserAgent(params, RCConstants.APP_DISPLAY_NAME);
+            HttpClientParams.setRedirecting(params, true);
+
+            /*
+             HttpConnectionParams.setTcpNoDelay(params, true);
+             HttpConnectionParams.setLinger(params, 30);
+             HttpConnectionParams.setConnectionTimeout(params, 30000);
+             HttpConnectionParams.setSoTimeout(params, 30000);
+             HttpProtocolParams.setUseExpectContinue(params, false);
+             HttpClientParams.setCookiePolicy(params,
+             CookiePolicy.BROWSER_COMPATIBILITY);
+             */
+
+            SchemeRegistry registry = new SchemeRegistry();
+            registry.register(getPlainScheme());
+            registry.register(getSSLScheme(isDisabledCertVerifier(), isDisabledHostVerifier()));
+
+            if ( conman == null ) conman = new ThreadSafeClientConnManager(registry);
+
+            if ( client == null ) {
+                client = new DefaultHttpClient(conman);
+                ((DefaultHttpClient) client).setParams(params);
+                ((DefaultHttpClient) client).setKeepAliveStrategy(new CustomKeepAliveStrategy());
+                /*
+                // set custom request retry handler which doesn't allow retry for POST request
+                HttpRequestRetryHandler retryHandler = new CustomRetryHandler();
+                ((DefaultHttpClient) client).setHttpRequestRetryHandler(retryHandler);
+                client.getParams().setParameter(CoreProtocolPNames.WAIT_FOR_CONTINUE, 10000); // 10 seconds
+                */
+
+            }
+
+            return client;
+        }
+    }
+
+    private Scheme getPlainScheme() {
+        return new Scheme("http", RCConstants.PLAIN_SOCKET_PORT, PlainSocketFactory.getSocketFactory());
+    }
+
+    private Scheme getSSLScheme(boolean disableVerifyCert, boolean disableVerifyHost) throws NoSuchAlgorithmException, KeyManagementException,
+                    UnrecoverableKeyException, KeyStoreException {
+        SSLSocketFactory sslFactory = null;
+
+        if ( isUseSelfSignedCertVerifier() ) {
+            TrustSelfSignedStrategy selfSignedStrategy = new TrustSelfSignedStrategy();
+
+            // AllowAllHostnameVerifier doesn't verify host names contained in SSL certificate. It should not be set in
+            // production environment. It may allow man in middle attack. Other host name verifiers for specific needs
+            // are StrictHostnameVerifier and BrowserCompatHostnameVerifier.
+            if ( disableVerifyHost ) sslFactory = new SSLSocketFactory(selfSignedStrategy, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            else sslFactory = new SSLSocketFactory(selfSignedStrategy); // BROWSER_COMPATIBLE_HOSTNAME_VERIFIER is used by default
+
+        } else {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+
+            if ( disableVerifyCert ) sslContext.init(null, new TrustManager[] { getNoCheckTrustManager() }, null);
+            else sslContext.init(null, null, null);
+
+            if ( disableVerifyHost ) sslFactory = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            else sslFactory = new SSLSocketFactory(sslContext);
+        }
+
+        return new Scheme("https", RCConstants.SSL_SOCKET_PORT, sslFactory);
+    }
+
+    private TrustManager getNoCheckTrustManager() {
+        return new X509TrustManager() {
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            // Do nothing
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            // Do nothing
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        };
+    }
+
+    /**
+     * First checks property disable.ssl.cert.verifier as system property if not found it uses configured one.
+     * 
+     * @return
+     */
+    private boolean isDisabledCertVerifier() {
+        String disable = RCUtil.getSSLOverrideProperty("disable.ssl.cert.verifier");
+        if ( disable == null ) return RCConstants.DISABLE_SSL_CERT_VERIFIER;
+        else return new Boolean(disable);
+    }
+
+    /**
+     * First checks property disable.host.name.verifier as system property if not found it uses configured one.
+     * 
+     * @return
+     */
+    private boolean isDisabledHostVerifier() {
+        String disable = RCUtil.getSSLOverrideProperty("disable.host.name.verifier");
+        if ( disable == null ) return RCConstants.DISABLE_HOST_NAME_VERIFIER;
+        else return new Boolean(disable);
+    }
+
+    /**
+     * First checks property disable.host.name.verifier as system property if not found it uses configured one.
+     * 
+     * @return
+     */
+    private boolean isUseSelfSignedCertVerifier() {
+        String disable = RCUtil.getSSLOverrideProperty("use.self.signed.cert.verifier");
+        if ( disable == null ) return RCConstants.USE_SELF_SIGNED_CERT_VERIFIER;
+        else return new Boolean(disable);
+    }
+
+    /*
     public static void main(String[] args) {
-    	Hitter hitter = new Hitter();
-    	//String url = "http://localhost.mlbam.com:8080/stage/v1.1/14/content/item/viewImage?fileLocation=/images/04022010/6845668/Sunset.jpg";
-    	HttpHandler httpHandler = null;
-    	String url = "http://localhost.mlbam.com:8080/webtest/controller";
-    	try {
-    		httpHandler = hitter.hit(url, "PUT", "aa", null);
-    	} catch (Exception e) {
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	}
-    	LOG.debug("Response Headers: \n" + httpHandler.getResponseHeaders());
+        Hitter hitter = new Hitter();
+        String url = "https://localhost.mlbam.com:8443/";
+        HttpHandler httpHandler = new HttpHandler();
+
+        try {
+            hitter.hit(url, "GET", httpHandler, null);
+        } catch ( Exception e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        LOG.debug("Response Headers: \n" + httpHandler.getResponseHeaders());
+        System.out.println("Response Headers: \n" + httpHandler.getResponseHeaders());
     }
     */
+
 }

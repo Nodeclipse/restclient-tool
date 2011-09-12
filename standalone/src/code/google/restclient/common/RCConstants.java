@@ -21,14 +21,17 @@ public class RCConstants {
     public static final String APP_VERSION = PropUtil.getProperty("app.version");
     public static final String APP_DISPLAY_NAME = PropUtil.getProperty("app.display.name");
     public static final String APP_FULL_NAME = APP_DISPLAY_NAME + "/" + APP_VERSION;
-    public static final boolean SYSTEM_CHECK = new Boolean(PropUtil.getProperty("system.check"));
+    public static final boolean SYSTEM_CHECK = new Boolean(PropUtil.getProperty("system.check", "true"));
 
     // HTTP config
     public static final String SYS_PROXY_ENABLED = "SYS_PROXY_ENABLED";
     public static final String SYS_PROXY_DISABLED = "SYS_PROXY_DISABLED";
     public static final int PLAIN_SOCKET_PORT = 80;
     public static final int SSL_SOCKET_PORT = 443;
-    public static final boolean DISABLE_HOST_NAME_VERIFIER = new Boolean(PropUtil.getProperty("disable.host.name.verifier"));
+    public static final boolean DISABLE_SSL_CERT_VERIFIER = new Boolean(PropUtil.getProperty("disable.ssl.cert.verifier", "true"));
+    public static final boolean DISABLE_HOST_NAME_VERIFIER = new Boolean(PropUtil.getProperty("disable.host.name.verifier", "true"));
+    public static final boolean USE_SELF_SIGNED_CERT_VERIFIER = new Boolean(PropUtil.getProperty("use.self.signed.cert.verifier", "true"));
+    public static final String SSL_OVERRIDE_PROP_FILE_NAME = PropUtil.getProperty("ssl.override.prop.file.name");
     public static final String GET = "GET";
     public static final String POST = "POST";
     public static final String HEAD = "HEAD";
