@@ -9,6 +9,7 @@ Build Plugin
 
 	Build Eclipse Plugin
 	---------------------	
+		0. Create new project in trunk\eclipse\plugin to get plugin as Eclipse Plugin project //added by Paul
 		1. Open restclient-tool/trunk/eclipse/plugin/plugin.xml on UI editor.
 		2. Update version number to new version.
 		3. Add restclient-tool/trunk/eclipse/plugin/lib/rc-tool-core_<version>.jar to runtime dependencies.
@@ -26,10 +27,10 @@ Build Plugin
 		3. Remove older version of plugin and add new version plugin under 'Plug-ins' tab.
 		4. Save feature.xml
 	
-	Update Site (publish plugin)
+	Update Site (publish plugin) // failed
 	----------------------------
 		1. Open restclient-tool/trunk/eclipse/update/site.xml in wizard editor
-		2. Remove older version of plugin and add new version plugin under 'Site Map' tab.
+		2. Remove older version of plugin and add new version plugin under 'Site Map' tab. //can't see/find new 1.1.0
 		3. Build All to generate all publish artifacts.
 		4. Check-in all the newly generated/updated stuff to repository.
 		

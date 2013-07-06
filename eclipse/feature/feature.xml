@@ -2,12 +2,11 @@
 <feature
       id="code.google.restclient.tool.feature"
       label="RestClient Tool"
-      version="1.0.3"
-      provider-name="Yadu">
+      version="1.1.0"
+      provider-name="Nodeclipse">
 
-   <description url="http://code.google.com/a/eclipselabs.org/p/restclient-tool/">
+   <description url="http://www.nodeclipse.org/restclient-tool">
       Feature rich rest client for developers to test RESTful web services.
-
 It can be used to test HTTP URL for any HTTP method
 - GET
 - POST
@@ -16,33 +15,35 @@ It can be used to test HTTP URL for any HTTP method
 - HEAD
 - OPTIONS
 - TRACE
-
 Main Feaures:
 1. Simultaneous views of request, response and browser.
-2. Post text file, binary file or any raw data as body of POST request.
+2. Post text file, binary file or any raw data as body of POST
+request.
 3. Post multipart form data.
-4. Handling of text as well as binary response. Saves binary response in local file for reference.
-5. Allows to write params directly as part of URL or each param on separate line in params box.
-
-Update Site: http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/
+4. Handling of text as well as binary response. Saves binary
+response in local file for reference.
+5. Allows to write params directly as part of URL or each param
+on separate line in params box.
+Update Site: http://www.nodeclipse.org/updates/restclient-tool/
    </description>
 
    <copyright>
       *************************************************************
-   * Copyright (c) 2010 Yaduvendra Singh.
-   * All rights reserved. &quot;RestClient Tool&quot; (RC-Tool) comes
-   * with ABOLUTELY NO WARRANTY. This program and the
-   * accompanying materials are made available under the
-   * terms of the Eclipse Public License v1.0 which
-   * accompanies this distribution, available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * It includes software developed by the Apache Software
-   * Foundation (http://www.apache.org)
-   *
-   * Contributors:
-   *     Yadu - initial API and implementation
-   *************************************************************
+* Copyright (c) 2010 Yaduvendra Singh, 2013 Paul Verest
+* All rights reserved. &quot;RestClient Tool&quot; (RC-Tool) comes
+* with ABOLUTELY NO WARRANTY. This program and the
+* accompanying materials are made available under the
+* terms of the Eclipse Public License v1.0 which
+* accompanies this distribution, available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* It includes software developed by the Apache Software
+* Foundation (http://www.apache.org)
+*
+* Contributors:
+*     Yadu - initial API and implementation
+*     Paul Verest - 1.1.0
+*************************************************************
    </copyright>
 
    <license url="http://www.eclipse.org/legal/epl-v10.html">
@@ -136,7 +137,7 @@ Update Site: http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/ecl
    </license>
 
    <url>
-      <update label="http://code.google.com/a/eclipselabs.org/p/restclient-tool/" url="http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/"/>
+      <update label="http://www.nodeclipse.org/updates/restclient-tool/" url="http://www.nodeclipse.org/updates/restclient-tool/"/>
    </url>
 
    <requires>
@@ -148,7 +149,7 @@ Update Site: http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/ecl
          id="code.google.restclient.tool"
          download-size="0"
          install-size="0"
-         version="1.0.3"
+         version="1.1.0"
          unpack="false"/>
 
 </feature>

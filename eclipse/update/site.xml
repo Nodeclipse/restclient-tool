@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="RestClient Tool" url="http://svn.codespot.com/a/eclipselabs.org/restclient-tool/trunk/eclipse/update/">
-      RestClient Tool update site. Latest features available at this location.
+   <description name="RestClient Tool" url="http://www.nodeclipse.org/updates/restclient-tool/">
+      RestClient Tool update site since 1.1.0. Latest features available at this location.
    </description>
    <feature url="features/code.google.restclient.tool.feature_1.0.3.jar" id="code.google.restclient.tool.feature" version="1.0.3">
       <category name="main"/>
