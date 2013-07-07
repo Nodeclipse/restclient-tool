@@ -70,7 +70,7 @@ public class MainWindow {
     Composite shellComposite;
 
     // Widgets
-    Combo location;
+    Combo location; //TODO Go to location when Enter is pressed
     ToolBar toolbar;
     ToolItem itemGo, itemStop;
     CCombo httpActionCombo;
