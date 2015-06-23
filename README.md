@@ -29,9 +29,10 @@ Check original [docs\build_process.txt](docs\build_process.txt).
 
 ### TODO
 
-look into [standalone\src\code\google\restclient\ui\MainWindow.java](standalone\src\code\google\restclient\ui\MainWindow.java)
+look into [standalone/src/code/google/restclient/ui/MainWindow.java](standalone/src/code/google/restclient/ui/MainWindow.java)
 
-![](standalone\resource\screenshots\screen_shot1.jpg)
-![](standalone\resource\screenshots\screen_shot2.jpg)
-![](standalone\resource\screenshots\screen_shot3.jpg)
-![](standalone\resource\screenshots\screen_shot4.jpg)
+![](standalone/resource/screenshots/screen_shot1.jpg)
+![](standalone/resource/screenshots/screen_shot2.jpg)
+![](standalone/resource/screenshots/screen_shot3.jpg)
+![](standalone/resource/screenshots/screen_shot4.jpg)
+
