@@ -381,6 +381,9 @@ public class MainWindow {
 
         paramsText.addKeyListener(keyListener);
         paramsText.addFocusListener(focusListener);
+        
+        contentTypeText.addKeyListener(keyListener);
+        contentTypeText.addFocusListener(focusListener);
 
         bodyText.addKeyListener(keyListener);
         bodyText.addFocusListener(focusListener);
