@@ -75,9 +75,9 @@ public class MainWindow {
     ToolItem itemGo, itemStop;
     CCombo httpActionCombo;
     SashForm sashForm, sashFormLeft;
-    Composite headerComposite, paramsComposite, bodyComposite, bottomComposite;
-    Label processingLabel, headerLabel, paramsLabel, bodyLabel;
-    StyledText headerText, paramsText, bodyText, reqPaneText, respPaneText;
+    Composite headerComposite, paramsComposite, contentTypeComposite, bodyComposite, bottomComposite;
+    Label processingLabel, headerLabel, paramsLabel, contentTypeLabel, bodyLabel;
+    StyledText headerText, paramsText,contentTypeText,  bodyText, reqPaneText, respPaneText;
     Button textBodyButton, fileButton;
     Color whiteColor, blackColor, greenColor, pinkColor, grayColor;
 
@@ -267,6 +267,20 @@ public class MainWindow {
         paramsText.setFont(DecorHelper.getDefaultFont()); // set font
         paramsText.setText(RCConstants.PARAMS_TEXT);
         paramsText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.PARAMS_TEXT));
+        
+        // contentType
+        contentTypeComposite = new Composite(sashFormLeft, SWT.NONE);
+        contentTypeComposite.setLayout(new GridLayout());
+        contentTypeLabel = new Label(contentTypeComposite, SWT.NONE);
+        contentTypeLabel.setText("ContentType");
+
+        contentTypeText = new StyledText(contentTypeComposite, SWT.V_SCROLL);
+        contentTypeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        contentTypeText.setWordWrap(true);
+        contentTypeText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
+        contentTypeText.setFont(DecorHelper.getDefaultFont()); // set font
+        contentTypeText.setText(RCConstants.PARAMS_TEXT);
+        contentTypeText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.PARAMS_TEXT));
 
         // Body
         bodyComposite = new Composite(sashFormLeft, SWT.NONE);
@@ -461,6 +475,7 @@ public class MainWindow {
             req.setMethod(httpActionCombo.getText());
             req.setHeadersStr(headerText.getText());
             req.setParamsStr(paramsText.getText());
+            req.setContentType(paramsText.getText());
             if ( bodyText.getEnabled() && !RCConstants.BODY_TEXT.equals(bodyText.getText()) ) {
                 req.setBodyStr(bodyText.getText());
             }
