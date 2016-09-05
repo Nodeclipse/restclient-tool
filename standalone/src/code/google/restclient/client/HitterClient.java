@@ -78,7 +78,7 @@ public class HitterClient {
             if ( RCUtil.isEntityEnclosingMethod(req.getMethod()) ) { // if request method has body
                 if ( req.isPostParams() ) reqBodyEntity = getUrlEncodedFormEntity(req);
                 else if ( req.isMultipart() ) reqBodyEntity = getMultipartEntity(req);
-                else reqBodyEntity = getStringOrFileEntity(req.getBodyToPost());
+                else reqBodyEntity = getStringOrFileEntity(req.getBodyToPost(),req.getContentType());
                 handler.setReqBodyEntity(reqBodyEntity);
             }
             hitter.hit(url, req.getMethod(), handler, req.getInputHeaders());
@@ -96,7 +96,7 @@ public class HitterClient {
     }
 
     /* ***************** Entity creator methods ***************** */
-    private HttpEntity getStringOrFileEntity(String body) throws RCException {
+    private HttpEntity getStringOrFileEntity(String body,String contentType) throws RCException {
         if ( body == null ) body = "";
         HttpEntity reqEntity = null;
         if ( body.startsWith("@") ) {
@@ -106,7 +106,7 @@ public class HitterClient {
             reqEntity = new FileEntity(new File(path), mimeType); // second argument is contentType e.g. "text/plain; charset=\"UTF-8\"");
         } else {
             try {
-                reqEntity = new StringEntity(body, RCConstants.DEFAULT_CHARSET);
+                reqEntity = new StringEntity(body, contentType ,RCConstants.DEFAULT_CHARSET);
             } catch ( UnsupportedEncodingException e ) {
                 throw new RCException("getStringOrFileEntity(): Could not prepare string post entity due to unsupported encoding", e);
             }
