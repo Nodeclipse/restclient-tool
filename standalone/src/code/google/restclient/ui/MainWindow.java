@@ -266,7 +266,7 @@ public class MainWindow {
         paramsText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
         paramsText.setFont(DecorHelper.getDefaultFont()); // set font
         paramsText.setText(RCConstants.PARAMS_TEXT);
-        paramsText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.PARAMS_TEXT));
+        paramsText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.CONTENT_TYPE_TEXT));
         
         // contentType
         contentTypeComposite = new Composite(sashFormLeft, SWT.NONE);
