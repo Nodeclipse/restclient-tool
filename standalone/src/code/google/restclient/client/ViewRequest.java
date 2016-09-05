@@ -31,6 +31,7 @@ public class ViewRequest {
     private static final boolean DEBUG_ENABLED = LOG.isDebugEnabled();
 
     private String method;
+    private String contentType;
     private String url;
     private String headersStr;
     private String paramsStr;
@@ -57,6 +58,15 @@ public class ViewRequest {
     public void setMethod(String method) {
         this.method = method;
     }
+    
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
 
     public String getUrl() {
         return url;
