@@ -2,7 +2,7 @@
 <feature
       id="code.google.restclient.tool.feature"
       label="RestClient Tool"
-      version="1.1.0"
+      version="1.2.0"
       provider-name="Nodeclipse">
 
    <description url="http://www.nodeclipse.org/restclient-tool">
@@ -149,7 +149,7 @@ Update Site: http://www.nodeclipse.org/updates/restclient-tool/
          id="code.google.restclient.tool"
          download-size="0"
          install-size="0"
-         version="1.1.0"
+         version="1.2.0"
          unpack="false"/>
 
 </feature>
