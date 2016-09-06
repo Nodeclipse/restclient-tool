@@ -478,7 +478,7 @@ public class MainWindow {
             req.setMethod(httpActionCombo.getText());
             req.setHeadersStr(headerText.getText());
             req.setParamsStr(paramsText.getText());
-            req.setContentType(paramsText.getText());
+            req.setContentType(contentTypeText.getText());
             if ( bodyText.getEnabled() && !RCConstants.BODY_TEXT.equals(bodyText.getText()) ) {
                 req.setBodyStr(bodyText.getText());
             }
