@@ -266,7 +266,7 @@ public class MainWindow {
         paramsText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
         paramsText.setFont(DecorHelper.getDefaultFont()); // set font
         paramsText.setText(RCConstants.PARAMS_TEXT);
-        paramsText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.CONTENT_TYPE_TEXT));
+        paramsText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.PARAMS_TEXT));
         
         // contentType
         contentTypeComposite = new Composite(sashFormLeft, SWT.NONE);
@@ -279,8 +279,8 @@ public class MainWindow {
         contentTypeText.setWordWrap(true);
         contentTypeText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
         contentTypeText.setFont(DecorHelper.getDefaultFont()); // set font
-        contentTypeText.setText(RCConstants.PARAMS_TEXT);
-        contentTypeText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.PARAMS_TEXT));
+        contentTypeText.setText(RCConstants.CONTENT_TYPE_TEXT);
+        contentTypeText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.CONTENT_TYPE_TEXT));
 
         // Body
         bodyComposite = new Composite(sashFormLeft, SWT.NONE);
