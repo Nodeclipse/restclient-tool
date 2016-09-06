@@ -106,8 +106,9 @@ public class HitterClient {
             reqEntity = new FileEntity(new File(path), mimeType); // second argument is contentType e.g. "text/plain; charset=\"UTF-8\"");
         } else {
             try {
-                if(null==contentType||contentType.trim().length()==0)
+                if(null == contentType || contentType.trim().length() == 0){
                     contentType="text/plain";
+                }
                 reqEntity = new StringEntity(body, contentType ,RCConstants.DEFAULT_CHARSET);
             } catch ( UnsupportedEncodingException e ) {
                 throw new RCException("getStringOrFileEntity(): Could not prepare string post entity due to unsupported encoding", e);
