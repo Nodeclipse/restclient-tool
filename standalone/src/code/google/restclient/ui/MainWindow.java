@@ -273,10 +273,9 @@ public class MainWindow {
         contentTypeComposite.setLayout(new GridLayout());
         contentTypeLabel = new Label(contentTypeComposite, SWT.NONE);
         contentTypeLabel.setText("ContentType");
-
         contentTypeText = new StyledText(contentTypeComposite, SWT.V_SCROLL);
         contentTypeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        contentTypeText.setWordWrap(true);
+        contentTypeText.setWordWrap(false);
         contentTypeText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
         contentTypeText.setFont(DecorHelper.getDefaultFont()); // set font
         contentTypeText.setText(RCConstants.CONTENT_TYPE_TEXT);
