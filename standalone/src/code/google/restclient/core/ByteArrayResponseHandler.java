@@ -35,7 +35,7 @@ public class ByteArrayResponseHandler extends CustomResponseHandler<byte[]> {
             if ( respEntity != null ) return EntityUtils.toByteArray(respEntity);
             else return null;
         } finally {
-            respEntity.consumeContent();
+            EntityUtils.consume(respEntity);
         }
     }
 
