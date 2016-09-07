@@ -11,6 +11,7 @@
 
 package code.google.restclient.ui;
 
+import org.apache.log4j.jmx.LayoutDynamicMBean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -268,19 +269,6 @@ public class MainWindow {
         paramsText.setText(RCConstants.PARAMS_TEXT);
         paramsText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.PARAMS_TEXT));
         
-        // contentType
-        contentTypeComposite = new Composite(sashFormLeft, SWT.NONE);
-        contentTypeComposite.setLayout(new GridLayout());
-        contentTypeLabel = new Label(contentTypeComposite, SWT.NONE);
-        contentTypeLabel.setText("ContentType");
-        contentTypeText = new StyledText(contentTypeComposite, SWT.V_SCROLL);
-        contentTypeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        contentTypeText.setWordWrap(false);
-        contentTypeText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
-        contentTypeText.setFont(DecorHelper.getDefaultFont()); // set font
-        contentTypeText.setText(RCConstants.CONTENT_TYPE_TEXT);
-        contentTypeText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.CONTENT_TYPE_TEXT));
-
         // Body
         bodyComposite = new Composite(sashFormLeft, SWT.NONE);
         bodyComposite.setLayout(new GridLayout(3, false));
@@ -294,27 +282,48 @@ public class MainWindow {
         textBodyButton = new Button(bodyComposite, SWT.CHECK);
         textBodyButton.setText("&Use body text");
         data = new GridData();
-        data.horizontalAlignment = SWT.RIGHT;
+        data.horizontalAlignment = SWT.LEFT;
         data.horizontalSpan = 1;
         textBodyButton.setLayoutData(data);
-
+        textBodyButton.setSelection(true);// Enable body check box
+       
         fileButton = new Button(bodyComposite, SWT.PUSH);
         fileButton.setText("&File");
         data = new GridData();
-        data.horizontalAlignment = SWT.RIGHT;
+        data.horizontalAlignment = SWT.LEFT;
         data.horizontalSpan = 1;
         fileButton.setLayoutData(data);
+        
+        // contentType
+        contentTypeLabel = new Label(bodyComposite, SWT.NONE);
+        contentTypeLabel.setText("ContentType");
+        data = new GridData();
+        data.horizontalAlignment = SWT.LEFT;
+        data.horizontalSpan = 1;
+        contentTypeLabel.setLayoutData(data);
+        contentTypeText = new StyledText(bodyComposite,SWT.NONE);
+        data = new GridData();
+        data.horizontalAlignment = SWT.LEFT;
+        data.horizontalSpan = 2;
+        contentTypeText.setLayoutData(data);
+        contentTypeText.setWordWrap(false);
+        contentTypeText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
+        contentTypeText.setFont(DecorHelper.getDefaultFont()); // set font
+        contentTypeText.setText(RCConstants.CONTENT_TYPE_TEXT);
+   
 
         bodyText = new StyledText(bodyComposite, SWT.V_SCROLL);
         data = new GridData(SWT.FILL, SWT.FILL, true, true);
         data.horizontalSpan = 3;
         bodyText.setLayoutData(data);
         bodyText.setWordWrap(true);
-        bodyText.setEnabled(false);
-        bodyText.setBackground(DecorHelper.COLOR.LIGHT_PINK.getColor());
+        bodyText.setEnabled(true);
+        bodyText.setBackground(DecorHelper.COLOR.LIGHT_GREEN.getColor());
         bodyText.setFont(DecorHelper.getDefaultFont()); // set font
         bodyText.setText(RCConstants.BODY_TEXT);
         bodyText.setStyleRange(DecorHelper.getGrayItalicStyle(RCConstants.BODY_TEXT));
+
+        
         /* ** First inner SashForm ends here ** */
 
         // Request Pane
@@ -357,7 +366,7 @@ public class MainWindow {
         GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 3;
         bottomComposite.setLayout(gridLayout);
-
+        sashFormLeft.setWeights(new int[]{20,20,60});
         addListeners();
     }
 
