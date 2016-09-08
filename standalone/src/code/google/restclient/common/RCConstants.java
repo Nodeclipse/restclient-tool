@@ -44,6 +44,7 @@ public class RCConstants {
     // Intro texts
     public static final String HEADER_TEXT = "Headers on separate lines";
     public static final String PARAMS_TEXT = "Params on separate lines";
+    public static final String CONTENT_TYPE_TEXT = "application/json";
     public static final String BODY_TEXT = "Raw body content";
     public static final String REQUEST_DETAIL = "Request Detail";
     public static final String RESPONSE_DETAIL = "Response Detail";

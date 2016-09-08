@@ -50,7 +50,7 @@ public class RCUtil {
             if ( linesArr != null && linesArr.length > 0 ) {
                 String[] keyValueArr = null;
                 for ( String line : linesArr ) {
-                    keyValueArr = line.trim().split("=");
+                    keyValueArr = line.trim().split(":", 2);//header split by ":"
                     if ( keyValueArr != null && keyValueArr.length == 2 ) {
                         map.put(keyValueArr[0].trim(), keyValueArr[1].trim());
                     }

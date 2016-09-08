@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description name="RestClient Tool" url="http://www.nodeclipse.org/updates/restclient-tool/">
-      RestClient Tool update site since 1.1.0. Latest features available at this location.
+   <description name="RestClient Tool" url="D:\git\restclient-tool\eclipse\update">
+      RestClient Tool update site since 1.3.0. Latest features available at this location.
    </description>
-   <feature url="features/code.google.restclient.tool.feature_1.0.3.jar" id="code.google.restclient.tool.feature" version="1.0.3">
+   <feature url="features/code.google.restclient.tool.feature_1.4.0.jar" id="code.google.restclient.tool.feature" version="1.4.0">
       <category name="main"/>
    </feature>
    <category-def name="main" label="Main">
