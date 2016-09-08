@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: RestClient Tool
 Bundle-SymbolicName: code.google.restclient.tool;singleton:=true
-Bundle-Version: 1.2.0
+Bundle-Version: 1.4.0
 Bundle-ClassPath: .,
  icons/,
  lib/apache-mime4j-0.6.jar,
@@ -16,7 +16,7 @@ Bundle-ClassPath: .,
  lib/httpcore-4.1.jar,
  lib/httpcore-nio-4.1.jar,
  lib/httpmime-4.1.jar,
- lib/rc-tool-core_1.2.0.jar
+ lib/rc-tool-core_1.3.1.jar
 Bundle-Activator: code.google.restclient.eclipse.plugin.Activator
 Bundle-Vendor: Nodeclipse
 Export-Package: code.google.restclient.eclipse.plugin,

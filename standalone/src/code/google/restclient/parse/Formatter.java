@@ -37,7 +37,7 @@ public class Formatter {
             return jsonObj.toString(indentCount);
         } catch ( JSONException e ) {
             LOG.warn("getPrettyJson() - Json string is not properly formatted", e);
-            return "";
+            return jsonStr;
         }
     }
 
@@ -49,7 +49,7 @@ public class Formatter {
         } else {
             LOG.warn("getPrettyXml() - XML string passed is null!");
         }
-        return "";
+        return xmlStr;
     }
 
     public static String getIndentedXml(InputStream xmlStream, int indentFactor) {

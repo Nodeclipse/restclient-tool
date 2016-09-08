@@ -2,7 +2,7 @@
 <feature
       id="code.google.restclient.tool.feature"
       label="RestClient Tool"
-      version="1.2.0"
+      version="1.4.0"
       provider-name="Nodeclipse">
 
    <description url="http://www.nodeclipse.org/restclient-tool">
@@ -136,10 +136,6 @@ Update Site: http://www.nodeclipse.org/updates/restclient-tool/
   This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
    </license>
 
-   <url>
-      <update label="http://www.nodeclipse.org/updates/restclient-tool/" url="http://www.nodeclipse.org/updates/restclient-tool/"/>
-   </url>
-
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
@@ -149,7 +145,7 @@ Update Site: http://www.nodeclipse.org/updates/restclient-tool/
          id="code.google.restclient.tool"
          download-size="0"
          install-size="0"
-         version="1.2.0"
+         version="1.4.0"
          unpack="false"/>
 
 </feature>

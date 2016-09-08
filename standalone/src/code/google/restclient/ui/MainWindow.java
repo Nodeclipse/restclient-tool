@@ -210,7 +210,7 @@ public class MainWindow {
         httpActionCombo.add("HEAD");
         httpActionCombo.add("OPTIONS");
         httpActionCombo.add("TRACE");
-        httpActionCombo.select(0);
+        httpActionCombo.select(1);
         httpActionCombo.setEditable(false);
         whiteColor = new Color(Display.getCurrent(), 255, 255, 255);
         httpActionCombo.setBackground(whiteColor);
@@ -431,8 +431,11 @@ public class MainWindow {
                     boolean selection = textBodyButton.getSelection();
                     if ( selection ) {
                         req.setFilePath(null);
-                        httpActionCombo.select(1); // Select POST
-                    } else httpActionCombo.select(0); // Select GET
+                        int selectIndex = httpActionCombo.getSelectionIndex();
+                        if(selectIndex<1||selectIndex>2){
+                        	httpActionCombo.select(1); // Select POST
+                        }
+                    }
                     enableBody(bodyText, textBodyButton, selection);
                 }
             }
